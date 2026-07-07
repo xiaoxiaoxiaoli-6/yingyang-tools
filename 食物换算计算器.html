@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食物换算计算器</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:system-ui,-apple-system,sans-serif; background:#f0f2f5; color:#2d3436; padding:16px; }
+  .container { max-width:640px; margin:0 auto; }
+  .header { background:linear-gradient(135deg,#1a3c2e,#2c5f4a); color:#fff; border-radius:16px; padding:20px 24px; margin-bottom:14px; text-align:center; }
+  .header h1 { font-size:20px; font-weight:900; }
+  .header p { font-size:12px; opacity:.6; margin-top:4px; }
+
+  .card { background:#fff; border-radius:14px; padding:18px 20px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+  .card h2 { font-size:15px; font-weight:700; margin-bottom:12px; color:#1a3c2e; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:14px; }
+  .tab { flex:1; padding:10px; text-align:center; border-radius:10px; font-size:12px; font-weight:600; cursor:pointer; background:#eee; border:none; transition:.2s; }
+  .tab.on { background:#1a3c2e; color:#fff; }
+
+  .row { display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .row label { font-size:12px; font-weight:600; min-width:45px; color:#555; }
+  select, input { padding:9px 10px; border:1px solid #ddd; border-radius:10px; font-size:13px; font-family:inherit; }
+  select { flex:1; min-width:110px; background:#fff; }
+  input[type=number] { width:80px; text-align:center; }
+
+  .arrow { text-align:center; font-size:22px; color:#1a3c2e; margin:6px 0; font-weight:900; }
+
+  .result { background:#e8f5e9; border:2px solid #388e3c; border-radius:14px; padding:18px; text-align:center; margin-top:10px; }
+  .result .big { font-size:32px; font-weight:900; color:#1a3c2e; }
+  .result .sub { font-size:12px; color:#555; margin-top:3px; }
+
+  .warn { background:#fff3e0; border:2px solid #ff9800; }
+  .warn .big { color:#e65100; }
+
+  .footnote { font-size:10px; color:#888; margin-top:8px; line-height:1.6; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:50px; font-size:10px; font-weight:700; margin-right:4px; }
+  .tag.p { background:#e3f2fd; color:#1565c0; }
+  .tag.c { background:#fff3e0; color:#e65100; }
+  .tag.f { background:#fce4ec; color:#c62828; }
+
+  .veg-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:12px; line-height:1.8; }
+  .veg-grid .hi { background:#e8f5e9; border-radius:10px; padding:10px 12px; }
+  .veg-grid .mid { background:#f5f5f5; border-radius:10px; padding:10px 12px; }
+  .veg-grid h4 { font-size:12px; margin-bottom:3px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>食物换算计算器</h1>
+  <p>蛋白质 · 主食 · 油脂 · 蔬菜 互换 + 可溶性纤维清单</p>
+</div>
+
+<!-- ====== 换算器 ====== -->
+<div class="card">
+  <div class="tabs">
+    <button class="tab on" onclick="switchTab('protein')">🥩 蛋白质</button>
+    <button class="tab" onclick="switchTab('carb')">🍚 主食</button>
+    <button class="tab" onclick="switchTab('fat')">🫒 油脂</button>
+  </div>
+
+  <div class="row">
+    <label>从</label>
+    <select id="fromFood" onchange="calc()"></select>
+    <input type="number" id="fromWeight" value="100" min="1" oninput="calc()">
+    <span style="font-size:12px;color:#888;">g</span>
+  </div>
+
+  <div class="arrow">↓ 等于 ↓</div>
+
+  <div class="row">
+    <label>到</label>
+    <select id="toFood" onchange="calc()"></select>
+  </div>
+
+  <div class="result" id="result">
+    <div class="big">—</div>
+    <div class="sub">请选择食材</div>
+  </div>
+
+  <div class="footnote" id="footnote"></div>
+</div>
+
+<!-- ====== 蔬菜可溶性纤维 ====== -->
+<div class="card">
+  <h2>🥬 蔬菜——可溶性膳食纤维清单</h2>
+  <div class="veg-grid">
+    <div class="hi">
+      <h4>🟢 含量偏高（排便不好时多吃）</h4>
+      秋葵、莲藕、铁棍山药、芋头<br>
+      南瓜、胡萝卜、木耳、银耳<br>
+      金针菇、香菇
+    </div>
+    <div class="mid">
+      <h4>🟡 含量中等</h4>
+      冬瓜、丝瓜、苦瓜、白萝卜<br>
+      青萝卜、卷心菜、西兰花、菜花<br>
+      番茄、茄子、菠菜、油麦菜<br>
+      生菜、芹菜、韭菜
+    </div>
+  </div>
+  <div class="footnote" style="margin-top:8px;">
+    ⚠️ 山药/芋头/南瓜含碳水，当菜吃时要相应减少主食量。易胀气：豆类、西兰花、卷心菜、洋葱、韭菜、红薯。
+  </div>
+</div>
+
+</div>
+
+<script>
+// ========== FOOD DATABASE ==========
+// 每100g可食部含量。生/熟标注见 note 字段
+const DB = {
+  // --- PROTEIN ---
+  '鸡胸肉(生)':    { cat:'protein', protein:23.0, carb:0.5, fat:1.5, kcal:110, note:'生重，×0.7≈熟重' },
+  '去皮鸡腿(生)':  { cat:'protein', protein:20.0, carb:0,   fat:4.0, kcal:119, note:'生重，×0.7≈熟重' },
+  '瘦牛肉(生)':    { cat:'protein', protein:21.0, carb:0.5, fat:3.0, kcal:115, note:'生重，×0.7≈熟重' },
+  '瘦猪肉(生)':    { cat:'protein', protein:20.0, carb:0,   fat:5.0, kcal:130, note:'生重，×0.7≈熟重' },
+  '鱼片(生)':      { cat:'protein', protein:18.0, carb:0,   fat:2.0, kcal:92,  note:'生重，×0.7≈熟重' },
+  '虾仁(生)':      { cat:'protein', protein:18.5, carb:0,   fat:1.0, kcal:85,  note:'生重，×0.7≈熟重' },
+  '鸡蛋(熟)':      { cat:'protein', protein:13.0, carb:1.5, fat:9.0, kcal:144, note:'1个≈50g(去壳)', unit:'个(~50g)' },
+  '嫩豆腐':        { cat:'protein', protein:5.5,  carb:2.0, fat:3.0, kcal:58,  note:'即食，不需再加工' },
+  '老豆腐':        { cat:'protein', protein:7.8,  carb:1.5, fat:4.0, kcal:76,  note:'即食，不需再加工' },
+  '豆干':          { cat:'protein', protein:16.0, carb:3.0, fat:7.0, kcal:140, note:'即食，不需再加工' },
+  '泡发腐竹':      { cat:'protein', protein:15.0, carb:2.0, fat:9.0, kcal:155, note:'干腐竹泡发后的湿重' },
+  '毛豆/黄豆(熟)': { cat:'protein', protein:13.0, carb:10.0, fat:6.0, kcal:150, note:'煮熟后重量' },
+  '鹰嘴豆(熟)':    { cat:'protein', protein:7.5,  carb:23.0, fat:2.5, kcal:144, note:'煮熟后重量' },
+  '牛奶':          { cat:'protein', protein:3.2,  carb:4.8, fat:3.5, kcal:65,  note:'液体，直接喝', unit:'ml' },
+  '无糖豆浆':      { cat:'protein', protein:3.0,  carb:1.5, fat:1.5, kcal:32,  note:'液体，直接喝', unit:'ml' },
+  '蛋白粉':        { cat:'protein', protein:75.0, carb:5.0, fat:3.0, kcal:360, note:'干粉，按重量称' },
+
+  // --- CARBS ---
+  '杂粮饭(熟)':    { cat:'carb', protein:3.0, carb:26.0, fat:0.8, kcal:120, note:'熟重。生米×2.5≈熟饭' },
+  '白米饭(熟)':    { cat:'carb', protein:2.6, carb:28.0, fat:0.3, kcal:116, note:'熟重。生米×2.5≈熟饭' },
+  '红薯(生)':      { cat:'carb', protein:1.1, carb:21.0, fat:0.2, kcal:86,  note:'生重，蒸熟后≈原重' },
+  '紫薯(生)':      { cat:'carb', protein:1.5, carb:22.0, fat:0.2, kcal:92,  note:'生重，蒸熟后≈原重' },
+  '玉米(生)':      { cat:'carb', protein:3.5, carb:19.0, fat:1.2, kcal:96,  note:'生重(带芯称，去芯×0.6)' },
+  '土豆(生)':      { cat:'carb', protein:2.0, carb:17.0, fat:0.1, kcal:77,  note:'生重，蒸/煮熟后≈原重' },
+  '芋头(生)':      { cat:'carb', protein:2.0, carb:17.0, fat:0.1, kcal:77,  note:'生重，蒸熟后≈原重' },
+  '山药(生)':      { cat:'carb', protein:1.9, carb:13.0, fat:0.1, kcal:57,  note:'生重，蒸熟后≈原重' },
+  '贝贝南瓜(熟)':  { cat:'carb', protein:1.5, carb:14.0, fat:0.3, kcal:60,  note:'熟重，整个蒸熟后称' },
+  '燕麦麸皮(干)':  { cat:'carb', protein:12.0, carb:50.0, fat:6.0, kcal:300, note:'干重，泡水后体积膨胀3-5倍' },
+  '燕麦片(干)':    { cat:'carb', protein:10.0, carb:66.0, fat:7.0, kcal:370, note:'干重，泡/煮后体积膨胀2-3倍' },
+  '全麦面包':      { cat:'carb', protein:9.0,  carb:43.0, fat:3.0, kcal:235, note:'即食，出厂即熟重' },
+  '白面条(熟)':    { cat:'carb', protein:3.5, carb:25.0, fat:0.3, kcal:110, note:'熟重。干面×2.5≈熟面' },
+  '荞麦面(熟)':    { cat:'carb', protein:3.8, carb:24.0, fat:0.5, kcal:112, note:'熟重。干面×2.5≈熟面' },
+  '馒头':          { cat:'carb', protein:7.0,  carb:44.0, fat:1.0, kcal:220, note:'即食，熟重' },
+  '干意面':        { cat:'carb', protein:13.0, carb:72.0, fat:1.5, kcal:350, note:'干重。煮熟后×2.5' },
+  '干挂面':        { cat:'carb', protein:10.0, carb:70.0, fat:1.0, kcal:340, note:'干重。煮熟后×2.5' },
+  '小米粥(稠)':    { cat:'carb', protein:1.5,  carb:9.0,  fat:0.5, kcal:48,  note:'熟重，含水多，按碗算' },
+
+  // --- FAT ---
+  '食用油':        { cat:'fat', protein:0,    carb:0,   fat:99.9, kcal:899, note:'液体，1ml≈1g', unit:'ml' },
+  '核桃仁':        { cat:'fat', protein:15.0, carb:9.0,  fat:65.0, kcal:654, note:'即食，去壳后称' },
+  '杏仁':          { cat:'fat', protein:21.0, carb:10.0, fat:50.0, kcal:579, note:'即食，去壳后称' },
+  '腰果':          { cat:'fat', protein:18.0, carb:22.0, fat:44.0, kcal:553, note:'即食，去壳后称' },
+  '花生米':        { cat:'fat', protein:25.0, carb:13.0, fat:48.0, kcal:580, note:'即食，去壳后称' },
+  '瓜子仁':        { cat:'fat', protein:21.0, carb:12.0, fat:50.0, kcal:580, note:'即食，去壳后称' },
+  '开心果':        { cat:'fat', protein:20.0, carb:18.0, fat:45.0, kcal:560, note:'即食，去壳后称' },
+  '花生酱':        { cat:'fat', protein:25.0, carb:16.0, fat:50.0, kcal:598, note:'即食，直接称' },
+  '牛油果':        { cat:'fat', protein:2.0,  carb:3.0,  fat:15.0, kcal:160, note:'即食，去核去皮后称' },
+  '蛋黄':          { cat:'fat', protein:15.0, carb:1.0,  fat:29.0, kcal:328, note:'熟蛋黄，1个蛋黄≈17g' },
+};
+
+let currentTab = 'protein';
+
+function getCatFoods(cat) {
+  return Object.entries(DB).filter(([k,v]) => v.cat === cat);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('on', i === (tab==='protein'?0:tab==='carb'?1:2));
+  });
+  const foods = getCatFoods(tab);
+  const from = document.getElementById('fromFood');
+  const to = document.getElementById('toFood');
+  from.innerHTML = foods.map(([k,v],i) => `<option value="${k}" ${i===0?'selected':''}>${k}${v.unit?' ('+v.unit+')':''}</option>`).join('');
+  to.innerHTML = foods.map(([k,v],i) => `<option value="${k}" ${i===1?'selected':''}>${k}${v.unit?' ('+v.unit+')':''}</option>`).join('');
+  calc();
+}
+
+function calc() {
+  const from = document.getElementById('fromFood').value;
+  const to = document.getElementById('toFood').value;
+  const weight = parseFloat(document.getElementById('fromWeight').value) || 100;
+  const fa = DB[from], tb = DB[to];
+  const res = document.getElementById('result');
+  if (!fa || !tb) return;
+
+  const key = currentTab === 'protein' ? 'protein' : currentTab === 'carb' ? 'carb' : 'fat';
+  const fromAmount = (weight / 100) * fa[key];
+  const toPer100 = tb[key];
+
+  if (toPer100 === 0) {
+    res.className = 'result';
+    res.innerHTML = '<div class="big">—</div><div class="sub">无法换算（目标食材该项为0）</div>';
+    return;
+  }
+
+  const result = (fromAmount / toPer100) * 100;
+  const fu = fa.unit ? fa.unit.match(/[a-zA-Z一-龥]+/)?.[0]||'g' : 'g';
+  const tu = tb.unit ? tb.unit.match(/[a-zA-Z一-龥]+/)?.[0]||'g' : 'g';
+  const ratio = fa[key] / tb[key];
+
+  // Check: if converting between foods with notably different carb content
+  const otherKey = currentTab === 'protein' ? 'carb' : 'protein';
+  const otherDiff = Math.abs(fa[otherKey] - tb[otherKey]);
+  const warnCross = (currentTab === 'protein' || currentTab === 'fat') && otherDiff > 8;
+
+  res.className = warnCross ? 'result warn' : 'result';
+  res.innerHTML = `
+    <div class="big">${result.toFixed(0)} ${tu}</div>
+    <div class="sub">${weight}${fu} ${from} ≈ ${result.toFixed(0)}${tu} ${to}</div>
+    <div class="sub" style="font-size:10px;color:#888;">📌「${from}」${fa.note}　｜　「${to}」${tb.note}</div>
+    ${warnCross ? `<div class="sub" style="color:#e65100;margin-top:4px;">⚠ 两种食材的碳水/脂肪含量差异较大，仅按${currentTab==='protein'?'蛋白质':currentTab==='carb'?'碳水':'脂肪'}换算。替换时注意总热量变化。</div>` : ''}
+  `;
+
+  document.getElementById('footnote').innerHTML = `
+    <span class="tag ${currentTab==='protein'?'p':currentTab==='carb'?'c':'f'}">${currentTab==='protein'?'蛋白质':currentTab==='carb'?'碳水':'脂肪'}</span>
+    每100g「${from}」含${fa[key]}g · 每100g「${to}」含${tb[key]}g · 比例 ${ratio.toFixed(2)}:1
+  `;
+}
+
+// Init
+switchTab('protein');
+</script>
+</body>
+</html>

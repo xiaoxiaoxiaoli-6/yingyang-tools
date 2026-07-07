@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>客户健康评估表 | 营养师专用</title>
+<style>
+  :root {
+    --primary: #2c5f4a;
+    --primary-light: #e8f5ee;
+    --accent: #d4a853;
+    --accent-light: #fdf6e8;
+    --border: #d0d5d8;
+    --text: #2d3436;
+    --text-light: #636e72;
+    --bg: #f8faf9;
+    --white: #ffffff;
+    --danger: #c0392b;
+    --danger-light: #fdecea;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: #e8ece9;
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 794px; /* A4 */
+    min-height: 1123px;
+    background: var(--white);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1a3c2e 0%, #2c5f4a 100%);
+    color: #fff;
+    padding: 32px 40px 28px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #c8963e, var(--accent));
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    opacity: 0.8;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+  .header .badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .header-meta {
+    display: flex;
+    gap: 30px;
+    margin-top: 14px;
+    font-size: 13px;
+    opacity: 0.85;
+  }
+  .header-meta span { display: flex; align-items: center; gap: 6px; }
+  .header-meta .fill-area {
+    border-bottom: 1px dashed rgba(255,255,255,0.5);
+    padding: 2px 8px;
+    min-width: 80px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  /* ── Body ── */
+  .body { padding: 28px 40px 36px; }
+
+  /* Section */
+  .section { margin-bottom: 24px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  .section-title .icon {
+    width: 32px; height: 32px;
+    background: var(--primary-light);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 20px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px 16px; }
+
+  /* Field */
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-light);
+    letter-spacing: 0.5px;
+  }
+  .field-label .required { color: var(--danger); margin-left: 2px; }
+  .field input[type="text"],
+  .field input[type="number"],
+  .field select {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(44,95,74,0.08);
+    background: #fff;
+  }
+  .field input[type="number"] { -moz-appearance: textfield; }
+  .field .unit {
+    position: relative;
+  }
+  .field .unit input { padding-right: 32px; }
+  .field .unit::after {
+    content: attr(data-unit);
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--text-light);
+    pointer-events: none;
+  }
+
+  /* Bmi auto */
+  .bmi-display {
+    background: var(--accent-light);
+    border: 1.5px solid var(--accent);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #7a5e20;
+    text-align: center;
+    min-height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px;
+  }
+  .bmi-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  /* Option group */
+  .option-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .option-pill {
+    position: relative;
+    cursor: pointer;
+  }
+  .option-pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .option-pill .pill {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    transition: all 0.2s;
+    background: var(--bg);
+    user-select: none;
+  }
+  .option-pill input:checked + .pill {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .option-pill input:focus-visible + .pill {
+    box-shadow: 0 0 0 3px rgba(44,95,74,0.15);
+  }
+
+  /* Checkbox row */
+  .check-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .check-item input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  /* Severity scale */
+  .scale-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .scale-row .scale-label { min-width: 50px; color: var(--text-light); font-weight: 600; }
+  .scale-row .scale-bar {
+    flex: 1;
+    display: flex;
+    gap: 4px;
+  }
+  .scale-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #fff;
+  }
+  .scale-dot:hover { border-color: var(--primary); background: var(--primary-light); }
+  .scale-dot.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  /* Textarea */
+  .field textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    resize: vertical;
+    min-height: 64px;
+    transition: all 0.2s;
+  }
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(44,95,74,0.08);
+    background: #fff;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 16px 40px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-light);
+    border-top: 1px solid #eef1f0;
+  }
+  .footer .brand { font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+
+  /* ── Print ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page {
+      box-shadow: none;
+      width: 100%;
+      border-radius: 0;
+      page-break-after: always;
+    }
+    @page { margin: 10mm; size: A4; }
+    input, select, textarea { border: 1px solid #999 !important; background: #fff !important; }
+    .option-pill input:checked + .pill {
+      background: #e0e0e0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+
+  /* ── Interactive ── */
+  .scale-dot.active {
+    background: var(--primary) !important;
+    color: #fff !important;
+    border-color: var(--primary) !important;
+  }
+
+  /* ── Submit Area ── */
+  .submit-area {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0 8px;
+    flex-wrap: wrap;
+  }
+  .btn-submit {
+    padding: 12px 36px;
+    background: linear-gradient(135deg, #2c5f4a, #1a3c2e);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(44,95,74,0.25);
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(44,95,74,0.35); }
+  .btn-submit:active { transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-copy {
+    padding: 12px 28px;
+    background: #fff;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .btn-copy:hover { background: var(--primary-light); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 9999;
+    animation: toastIn 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .toast.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .toast.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+  .toast.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+  /* Server status indicator */
+      </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ═══ HEADER ═══ -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1>🌿 健康评估表</h1>
+        
+      </div>
+      <div class="badge">📋 编号 <span class="fill-area" contenteditable="true"></span></div>
+    </div>
+    <div class="header-meta">
+      <span>📅 填表日期：<span class="fill-area" contenteditable="true"></span></span>
+      <span>👤 客户姓名：<span class="fill-area" contenteditable="true"></span></span>
+      <span>📞 联系电话：<span class="fill-area" contenteditable="true"></span></span>
+    </div>
+  </div>
+
+  <!-- ═══ BODY ═══ -->
+  <div class="body">
+
+    <!-- ── 一、基础体征 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">📏</span> 一、基础体征
+      </div>
+      <div class="grid-3">
+        <div class="field">
+          <label class="field-label">性别 <span class="required">*</span></label>
+          <div class="option-group">
+            <label class="option-pill"><input type="radio" name="gender" value="male"><span class="pill">👨 男</span></label>
+            <label class="option-pill"><input type="radio" name="gender" value="female"><span class="pill">👩 女</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">年龄 <span class="required">*</span></label>
+          <div class="unit" data-unit="岁">
+            <input type="number" id="age" placeholder="如 35" min="1" max="120">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">职业类型</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>久坐办公（程序员/文员/客服）</option>
+            <option>轻度活动（教师/销售/护士）</option>
+            <option>中度体力（餐饮/零售/技工）</option>
+            <option>高强度体力（建筑/搬运/务农）</option>
+            <option>自由职业/居家</option>
+            <option>退休/无业</option>
+            <option>学生</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-top: 12px;">
+        <div class="field">
+          <label class="field-label">身高 <span class="required">*</span></label>
+          <div class="unit" data-unit="cm">
+            <input type="number" id="height" placeholder="如 165" min="50" max="250" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">当前体重 <span class="required">*</span></label>
+          <div class="unit" data-unit="kg">
+            <input type="number" id="weight" placeholder="如 68" min="20" max="300" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">BMI（自动计算）</label>
+          <div class="bmi-display" id="bmiDisplay">—</div>
+        </div>
+        <div class="field">
+          <label class="field-label">目标体重</label>
+          <div class="unit" data-unit="kg">
+            <input type="number" id="targetWeight" placeholder="如 55" min="20" max="300" step="0.1">
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top: 12px;">
+        <div class="field">
+          <label class="field-label">腰围</label>
+          <div class="unit" data-unit="cm">
+            <input type="number" placeholder="如 80" min="30" max="200">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">臀围</label>
+          <div class="unit" data-unit="cm">
+            <input type="number" placeholder="如 95" min="30" max="200">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">体脂率（如有）</label>
+          <div class="unit" data-unit="%">
+            <input type="number" placeholder="如 28" min="1" max="70" step="0.1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 二、生活习惯 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🌙</span> 二、生活习惯
+      </div>
+
+      <!-- 睡眠 -->
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">入睡时间</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>21:00 前</option>
+            <option>21:00–22:00</option>
+            <option>22:00–23:00</option>
+            <option>23:00–24:00</option>
+            <option>24:00–01:00</option>
+            <option>01:00–02:00</option>
+            <option>02:00 以后</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">睡眠时长</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>＜5 小时</option>
+            <option>5–6 小时</option>
+            <option>6–7 小时</option>
+            <option>7–8 小时</option>
+            <option>8–9 小时</option>
+            <option>＞9 小时</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">睡眠质量（可多选）</label>
+        <div class="check-row">
+          <label class="check-item"><input type="checkbox"> 入睡困难（＞30分钟）</label>
+          <label class="check-item"><input type="checkbox"> 易醒/多梦</label>
+          <label class="check-item"><input type="checkbox"> 早醒难再睡</label>
+          <label class="check-item"><input type="checkbox"> 需药物辅助</label>
+          <label class="check-item"><input type="checkbox"> 打鼾/呼吸暂停</label>
+          <label class="check-item"><input type="checkbox"> 睡眠良好</label>
+        </div>
+      </div>
+
+      <!-- 饮水 -->
+      <div class="grid-2" style="margin-top: 12px;">
+        <div class="field">
+          <label class="field-label">每日饮水量</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>＜500ml（几乎不喝）</option>
+            <option>500–1000ml（2-4杯）</option>
+            <option>1000–1500ml（4-6杯）</option>
+            <option>1500–2000ml（6-8杯）</option>
+            <option>＞2000ml（8杯以上）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">主要饮品类型</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>白水为主</option>
+            <option>茶/咖啡为主</option>
+            <option>含糖饮料/奶茶</option>
+            <option>混搭</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 排便 -->
+      <div style="margin-top: 12px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">排便情况</label>
+        <div class="grid-3">
+          <div class="field">
+            <label class="field-label" style="font-weight:400;">频率</label>
+            <select>
+              <option value="">-- 请选择 --</option>
+              <option>每天 1–2 次</option>
+              <option>每天 1 次</option>
+              <option>2–3 天一次</option>
+              <option>3 天以上一次（便秘）</option>
+              <option>一天多次（腹泻倾向）</option>
+              <option>不规律</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" style="font-weight:400;">性状</label>
+            <select>
+              <option value="">-- 请选择 --</option>
+              <option>正常成形</option>
+              <option>干硬/羊粪状</option>
+              <option>软便/不成形</option>
+              <option>稀水样</option>
+              <option>时干时稀</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" style="font-weight:400;">排便时间</label>
+            <select>
+              <option value="">-- 请选择 --</option>
+              <option>早晨</option>
+              <option>上午</option>
+              <option>下午/晚上</option>
+              <option>不定时</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 三、饮食与运动 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🥗</span> 三、饮食与运动
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">每日餐次</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>1–2 餐</option>
+            <option>3 餐（规律）</option>
+            <option>3 餐 + 加餐</option>
+            <option>不规律/不定时</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">是否吃早餐</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>每天吃</option>
+            <option>偶尔吃</option>
+            <option>几乎不吃</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">口味偏好（可多选）</label>
+        <div class="check-row">
+          <label class="check-item"><input type="checkbox"> 偏咸/重口</label>
+          <label class="check-item"><input type="checkbox"> 偏甜</label>
+          <label class="check-item"><input type="checkbox"> 偏油/油炸</label>
+          <label class="check-item"><input type="checkbox"> 偏辣</label>
+          <label class="check-item"><input type="checkbox"> 清淡</label>
+          <label class="check-item"><input type="checkbox"> 爱吃零食</label>
+          <label class="check-item"><input type="checkbox"> 爱吃夜宵</label>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">食物过敏 / 禁忌（可多选）</label>
+        <div class="check-row">
+          <label class="check-item"><input type="checkbox"> 无</label>
+          <label class="check-item"><input type="checkbox"> 海鲜</label>
+          <label class="check-item"><input type="checkbox"> 牛奶/乳制品</label>
+          <label class="check-item"><input type="checkbox"> 鸡蛋</label>
+          <label class="check-item"><input type="checkbox"> 花生/坚果</label>
+          <label class="check-item"><input type="checkbox"> 麸质/小麦</label>
+          <label class="check-item"><input type="checkbox"> 大豆</label>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 12px;">
+        <div class="field">
+          <label class="field-label">运动频率</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>几乎不运动</option>
+            <option>每周 1–2 次</option>
+            <option>每周 3–4 次</option>
+            <option>每周 5 次以上</option>
+            <option>每天</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">运动类型</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>步行/散步</option>
+            <option>跑步/骑行</option>
+            <option>健身房/力量训练</option>
+            <option>瑜伽/普拉提</option>
+            <option>球类/游泳</option>
+            <option>居家跟练（视频）</option>
+            <option>多类型混搭</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 四、情绪与压力 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🧘</span> 四、情绪与压力
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">近期整体情绪状态</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>积极愉快</option>
+            <option>平稳正常</option>
+            <option>偶尔低落/焦虑</option>
+            <option>经常低落/焦虑</option>
+            <option>持续抑郁/高压</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">压力主要来源</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>无明显压力</option>
+            <option>工作/学业</option>
+            <option>家庭/感情</option>
+            <option>经济</option>
+            <option>健康焦虑</option>
+            <option>身材/体重焦虑</option>
+            <option>多方面叠加</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">是否有以下情况（可多选）</label>
+        <div class="check-row">
+          <label class="check-item"><input type="checkbox"> 暴饮暴食倾向</label>
+          <label class="check-item"><input type="checkbox"> 情绪性进食（不开心就吃）</label>
+          <label class="check-item"><input type="checkbox"> 厌食/没胃口</label>
+          <label class="check-item"><input type="checkbox"> 夜间加餐失控</label>
+          <label class="check-item"><input type="checkbox"> 催吐/过度节食</label>
+          <label class="check-item"><input type="checkbox"> 以上均无</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 五、健康状况 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🏥</span> 五、健康状况
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label class="field-label" style="margin-bottom: 6px; display:block;">既往病史 / 正在服药（可多选）</label>
+        <div class="check-row">
+          <label class="check-item"><input type="checkbox"> 无</label>
+          <label class="check-item"><input type="checkbox"> 高血压</label>
+          <label class="check-item"><input type="checkbox"> 高血脂</label>
+          <label class="check-item"><input type="checkbox"> 糖尿病/血糖偏高</label>
+          <label class="check-item"><input type="checkbox"> 甲状腺问题</label>
+          <label class="check-item"><input type="checkbox"> 多囊卵巢</label>
+          <label class="check-item"><input type="checkbox"> 脂肪肝</label>
+          <label class="check-item"><input type="checkbox"> 痛风</label>
+          <label class="check-item"><input type="checkbox"> 胃肠疾病</label>
+          <label class="check-item"><input type="checkbox"> 关节炎/骨病</label>
+          <label class="check-item"><input type="checkbox"> 抑郁症/焦虑症</label>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label class="field-label">是否有过减重经历</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>没有（首次减重）</option>
+            <option>试过 1–2 次</option>
+            <option>试过 3 次以上</option>
+            <option>反复减重反弹</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">用过的方法</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>仅饮食控制</option>
+            <option>饮食+运动</option>
+            <option>代餐/减肥产品</option>
+            <option>药物/手术</option>
+            <option>断食/节食</option>
+            <option>多种混合</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">家族肥胖史</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>无</option>
+            <option>父母一方偏胖</option>
+            <option>父母双方偏胖</option>
+            <option>不清楚</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 12px;">
+        <div class="field">
+          <label class="field-label">女性：月经是否规律</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>规律</option>
+            <option>不太规律</option>
+            <option>闭经（3个月以上未来）</option>
+            <option>已绝经</option>
+            <option>不适用（男性）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">是否在备孕/孕期/哺乳期</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>否</option>
+            <option>备孕中</option>
+            <option>怀孕中</option>
+            <option>哺乳期</option>
+            <option>不适用</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 六、主要诉求 ── -->
+    <div class="section">
+      <div class="section-title">
+        <span class="icon">🎯</span> 六、主要诉求与备注
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">主要目标 <span class="required">*</span></label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>减重/减脂</option>
+            <option>增肌/塑形</option>
+            <option>改善亚健康</option>
+            <option>控制三高（血糖/血脂/血压）</option>
+            <option>改善消化/排便</option>
+            <option>改善睡眠</option>
+            <option>备孕调理</option>
+            <option>产后恢复</option>
+            <option>养成健康习惯</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">期望周期</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>1 个月内看到效果</option>
+            <option>1–3 个月</option>
+            <option>3–6 个月</option>
+            <option>6 个月以上（稳步调理）</option>
+            <option>不着急，长期陪伴</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;" class="grid-2">
+        <div class="field">
+          <label class="field-label">了解我们的渠道</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>朋友/家人介绍</option>
+            <option>微信朋友圈</option>
+            <option>小红书</option>
+            <option>抖音/快手</option>
+            <option>微信公众号</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">是否愿意配合每日三餐打卡</label>
+          <select>
+            <option value="">-- 请选择 --</option>
+            <option>愿意，可以坚持</option>
+            <option>愿意，但可能偶尔漏</option>
+            <option>不太方便拍照</option>
+            <option>先了解再决定</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top: 12px;">
+        <label class="field-label">个人备注 / 特殊需求</label>
+        <textarea placeholder="如：素食、宗教饮食禁忌、特殊作息、过往失败经历、特别在意的部位等……"></textarea>
+      </div>
+    </div>
+
+    <!-- ═══ 复制按钮 ═══ -->
+<div class="submit-area">
+<button class="btn-submit" onclick="copyAsText()">📋 点我复制，微信发给教练</button>
+</div>
+<div id="copyResult" style="display:none;margin:12px 40px;">
+<div style="font-size:13px;font-weight:700;color:#2c5f4a;margin-bottom:6px;">👇 长按下方文字 → 全选 → 复制</div>
+<textarea id="copyTextarea" readonly style="width:100%;height:45vh;border:2px solid #2c5f4a;border-radius:8px;padding:12px;font-size:13px;font-family:inherit;line-height:1.8;resize:none;" onclick="this.select()"></textarea>
+</div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+  <div class="footer">
+    <div>📋 信息仅用于健康管理方案制定 · 严格保密</div>
+    <div class="brand">🌿 专属营养师健康管理</div>
+  </div>
+
+</div>
+
+<!-- ═══ Logic: BMI + Submit + Copy ═══ -->
+<script>
+
+
+// ─── BMI 实时计算 ───
+(function() {
+  const h = document.getElementById('height');
+  const w = document.getElementById('weight');
+  const disp = document.getElementById('bmiDisplay');
+  function calc() {
+    const ht = parseFloat(h.value) / 100;
+    const wt = parseFloat(w.value);
+    if (!ht || !wt || ht <= 0 || wt <= 0) { disp.innerHTML = '—'; return; }
+    const bmi = wt / (ht * ht);
+    let tag = '', color = '#7a5e20';
+    if (bmi < 18.5) { tag = '偏瘦'; color = '#3498db'; }
+    else if (bmi < 24) { tag = '正常'; color = '#27ae60'; }
+    else if (bmi < 28) { tag = '超重'; color = '#f39c12'; }
+    else { tag = '肥胖'; color = '#e74c3c'; }
+    disp.innerHTML = bmi.toFixed(1) + ' <span class="bmi-tag" style="color:' + color + '">' + tag + '</span>';
+  }
+  h.addEventListener('input', calc);
+  w.addEventListener('input', calc);
+})();
+
+// ─── 工具函数 ───
+function val(sel) {  // 取 select 的值
+  const el = document.querySelector(sel);
+  return el ? (el.value || '') : '';
+}
+function radio(name) {  // 取 radio 的值
+  const el = document.querySelector('input[name="' + name + '"]:checked');
+  return el ? el.value : '';
+}
+function checks(containerSelector) {  // 取 checkbox 组的值，返回逗号分隔
+  const container = document.querySelector(containerSelector);
+  if (!container) return '';
+  const checked = container.querySelectorAll('input[type="checkbox"]:checked');
+  return Array.from(checked).map(cb => {
+    return cb.parentElement.textContent.trim();
+  }).join('、');
+}
+function text(sel) {  // 取 contenteditable span 的值
+  const el = document.querySelector(sel);
+  return el ? (el.textContent.trim() || '') : '';
+}
+function inputVal(id) {  // 取 input 的 value
+  const el = document.getElementById(id);
+  return el ? (el.value || '') : '';
+}
+function textareaVal(sel) {
+  const el = document.querySelector(sel);
+  return el ? (el.value || '') : '';
+}
+// 按标签文字匹配 select 值（用于取 select by section）
+function selectByLabel(labelText) {
+  const labels = document.querySelectorAll('.field-label');
+  for (const lbl of labels) {
+    if (lbl.textContent.trim().includes(labelText)) {
+      const sel = lbl.parentElement.querySelector('select');
+      if (sel && sel.value && !sel.value.startsWith('--')) return sel.value;
+    }
+  }
+  return '';
+}
+// 同上但跳过第一个 option
+function selectRaw(labelText) {
+  const labels = document.querySelectorAll('.field-label');
+  for (const lbl of labels) {
+    if (lbl.textContent.trim().includes(labelText)) {
+      const sel = lbl.parentElement.querySelector('select');
+      if (sel) return sel.value;
+    }
+  }
+  return '';
+}
+
+// ─── 收集表单数据 ───
+function collectData() {
+  const bmiText = document.getElementById('bmiDisplay').innerText.replace(/ .*/, '');
+  return {
+    // Header
+    '编号': text('.header .badge .fill-area'),
+    '客户姓名': text('.header-meta span:nth-child(2) .fill-area'),
+    '填表日期': text('.header-meta span:nth-child(1) .fill-area'),
+    '联系电话': text('.header-meta span:nth-child(3) .fill-area'),
+
+    // 一、基础体征
+    '性别': radio('gender'),
+    '年龄': inputVal('age'),
+    '职业类型': selectRaw('职业类型'),
+    '身高': inputVal('height'),
+    '当前体重': inputVal('weight'),
+    'BMI': bmiText,
+    '目标体重': inputVal('targetWeight'),
+    '腰围': val('.section:nth-of-type(1) .grid-3:nth-of-type(2) input[type="number"]:nth-of-type(1)'),
+    '臀围': val('.section:nth-of-type(1) .grid-3:nth-of-type(2) input[type="number"]:nth-of-type(2)'),
+    '体脂率': val('.section:nth-of-type(1) .grid-3:nth-of-type(2) input[type="number"]:nth-of-type(3)'),
+
+    // 二、生活习惯
+    '入睡时间': selectByLabel('入睡时间'),
+    '睡眠时长': selectByLabel('睡眠时长'),
+    '睡眠问题': checks('.section:nth-of-type(2) .check-row:nth-of-type(1)'),
+    '每日饮水量': selectByLabel('每日饮水量'),
+    '饮品类型': selectByLabel('主要饮品类型'),
+    '排便频率': selectByLabel('频率'),
+    '排便性状': selectByLabel('性状'),
+    '排便时间': selectByLabel('排便时间'),
+
+    // 三、饮食与运动
+    '每日餐次': selectByLabel('每日餐次'),
+    '是否吃早餐': selectByLabel('是否吃早餐'),
+    '口味偏好': checks('.section:nth-of-type(3) .check-row:nth-of-type(1)'),
+    '食物过敏': checks('.section:nth-of-type(3) .check-row:nth-of-type(2)'),
+    '运动频率': selectByLabel('运动频率'),
+    '运动类型': selectByLabel('运动类型'),
+
+    // 四、情绪与压力
+    '情绪状态': selectByLabel('情绪状态'),
+    '压力来源': selectByLabel('压力来源'),
+    '进食行为': checks('.section:nth-of-type(4) .check-row'),
+
+    // 五、健康状况
+    '病史': checks('.section:nth-of-type(5) .check-row'),
+    '减重经历': selectByLabel('减重经历'),
+    '减重方法': selectByLabel('用过的方法'),
+    '家族肥胖史': selectByLabel('家族肥胖史'),
+    '月经情况': selectByLabel('月经是否规律'),
+    '备孕哺乳': selectByLabel('备孕/孕期/哺乳期'),
+
+    // 六、主要诉求
+    '主要目标': selectByLabel('主要目标'),
+    '期望周期': selectByLabel('期望周期'),
+    '了解渠道': selectByLabel('渠道'),
+    '打卡意愿': selectByLabel('三餐打卡'),
+    '备注': textareaVal('.section:nth-of-type(6) textarea'),
+  };
+}
+
+// ─── Toast ───
+function showToast(msg, type) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 4000);
+}
+
+// ─── 复制数据 ───
+function copyAsText() {
+  const data = collectData();
+
+  const lines = [
+    '🌿 健康评估表',
+    '━━━━━━━━━━━━━━━━',
+    '👤 ' + data['客户姓名'] + '  |  ' + data['性别'] + '  |  ' + data['年龄'] + '岁',
+    '📏 身高 ' + data['身高'] + 'cm  |  体重 ' + data['当前体重'] + 'kg  |  BMI ' + data['BMI'],
+    '🎯 目标：' + data['主要目标'] + '  |  目标体重 ' + data['目标体重'] + 'kg',
+    '',
+    '🌙 睡眠：' + data['入睡时间'] + ' / ' + data['睡眠时长'] + '  |  ' + (data['睡眠问题'] || '无'),
+    '🚰 饮水：' + data['每日饮水量'] + '  |  饮品：' + data['饮品类型'],
+    '🚽 排便：' + data['排便频率'] + ' / ' + data['排便性状'] + ' / ' + data['排便时间'],
+    '',
+    '🥗 餐次：' + data['每日餐次'] + '  |  早餐：' + data['是否吃早餐'],
+    '🍽 口味：' + (data['口味偏好'] || '—'),
+    '⚠️ 过敏：' + (data['食物过敏'] || '—'),
+    '🏃 运动：' + data['运动频率'] + ' / ' + data['运动类型'],
+    '',
+    '🧘 情绪：' + data['情绪状态'] + '  |  压力：' + data['压力来源'],
+    '🍽 进食行为：' + (data['进食行为'] || '—'),
+    '',
+    '🏥 病史：' + (data['病史'] || '无'),
+    '📉 减重经历：' + data['减重经历'] + '  |  方法：' + data['减重方法'],
+    '',
+    '📅 填表日期：' + data['填表日期'],
+    '📞 电话：' + data['联系电话'],
+    '💬 备注：' + (data['备注'] || '无'),
+    '━━━━━━━━━━━━━━━━',
+  ];
+
+  const text = lines.join('\n');
+  // 微信浏览器不支持自动复制，弹出文本框手动长按全选
+  showCopyPopup(text);
+}
+
+function showCopyPopup(text) {
+  document.getElementById("copyTextarea").value = text;
+  document.getElementById("copyResult").style.display = "block";
+  document.getElementById("copyTextarea").scrollIntoView({behavior:"smooth"});
+  document.getElementById("copyTextarea").select();
+}
+</script></script>
+
+</body>
+</html>

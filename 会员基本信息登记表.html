@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基本信息登记</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans SC',-apple-system,sans-serif; background:#f0f2f5; color:#2d3436; line-height:1.85; padding:20px 12px; display:flex; justify-content:center; }
+  .page { max-width:500px; width:100%; background:#fff; border-radius:16px; padding:28px 24px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+  h1 { font-size:20px; font-weight:700; text-align:center; margin-bottom:4px; }
+  .sub { text-align:center; font-size:12px; color:#999; margin-bottom:20px; }
+  .q { margin-bottom:16px; }
+  .q label { display:block; font-size:14px; font-weight:600; margin-bottom:4px; }
+  .q input[type="text"], .q input[type="number"], .q textarea {
+    width:100%; border:1.5px solid #d0d5d8; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8faf9;
+  }
+  .q textarea { min-height:56px; resize:vertical; }
+  .btn { width:100%; padding:14px; background:linear-gradient(135deg,#2c5f4a,#1a3c2e); color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; letter-spacing:1px; margin-top:8px; }
+  .toast { position:fixed; top:20px; left:50%; transform:translateX(-50%); padding:12px 24px; border-radius:10px; font-size:14px; font-weight:600; z-index:999; }
+  .toast.ok { background:#d4edda; color:#155724; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>基本信息登记</h1>
+<div class="sub">花 1 分钟填一下，教练要建档出方案</div>
+
+<form id="form">
+
+  <div class="q">
+    <label>👤 你的名字</label>
+    <input type="text" id="name" placeholder="填你用的名字或昵称" required>
+  </div>
+
+  <div class="q">
+    <label>⚤ 性别 / 年龄</label>
+    <input type="text" id="genderAge" placeholder="比如：女，28岁" required>
+  </div>
+
+  <div class="q">
+    <label>📏 身高 / 当前体重</label>
+    <input type="text" id="body" placeholder="比如：160cm，65kg" required>
+  </div>
+
+  <div class="q">
+    <label>🍳 平时怎么吃饭</label>
+    <input type="text" id="meals" placeholder="比如：自己做饭 / 食堂 / 外卖 / 家里有人做 / 混搭" required>
+  </div>
+
+  <div class="q">
+    <label>🔄 之前减过肥吗，多少次</label>
+    <input type="text" id="dietHistory" placeholder="比如：减过3次，反复反弹 / 没减过" required>
+  </div>
+
+  <div class="q">
+    <label>🏥 有没有疾病或在吃药</label>
+    <input type="text" id="disease" placeholder="比如：无 / 多囊 / 甲减 / 高血压 / 尿酸高 / ……" required>
+  </div>
+
+  <div class="q">
+    <label>🍽 有没有进食方面的问题</label>
+    <input type="text" id="eatingIssue" placeholder="比如：无 / 情绪性进食 / 暴食 / 吃不下 / ……" required>
+  </div>
+
+  <div class="q">
+    <label>💬 还有什么想跟教练说的</label>
+    <textarea id="note" placeholder="饮食偏好、运动习惯、睡眠排便情况、特别在意的……没有就填无"></textarea>
+  </div>
+
+  <button type="button" class="btn" onclick="copyData()">📋 复制，微信发给教练</button>
+</form>
+
+</div>
+
+<script>
+function copyData() {
+  const name = document.getElementById('name').value.trim();
+  if (!name) { showToast('请先填名字'); return; }
+
+  const lines = [
+    '📋 基本信息登记',
+    '━━━━━━━━━━━━━━━━',
+    '👤 ' + name,
+    '⚤ ' + (document.getElementById('genderAge').value.trim() || '未填'),
+    '📏 ' + (document.getElementById('body').value.trim() || '未填'),
+    '🍳 吃饭方式：' + (document.getElementById('meals').value.trim() || '未填'),
+    '🔄 减脂经历：' + (document.getElementById('dietHistory').value.trim() || '未填'),
+    '🏥 疾病/药物：' + (document.getElementById('disease').value.trim() || '未填'),
+    '🍽 进食问题：' + (document.getElementById('eatingIssue').value.trim() || '未填'),
+    '💬 备注：' + (document.getElementById('note').value.trim() || '无'),
+    '━━━━━━━━━━━━━━━━',
+  ];
+
+  const text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast('已复制，去微信粘贴发给教练'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('已复制，去微信粘贴发给教练');
+  }
+}
+
+function showToast(msg) {
+  const old = document.querySelector('.toast'); if (old) old.remove();
+  const t = document.createElement('div'); t.className='toast ok'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+</script>
+</body>
+</html>

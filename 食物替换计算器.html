@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食物替换计算器</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Noto Sans SC',-apple-system,sans-serif; background:#f0f2f5; color:#2d3436; padding:16px 10px; }
+  .container { max-width:600px; margin:0 auto; }
+  h1 { text-align:center; font-size:20px; font-weight:900; margin-bottom:16px; }
+  .card { background:#fff; border-radius:14px; padding:18px 20px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+  .card h2 { font-size:15px; font-weight:700; margin-bottom:12px; }
+  .row { display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .row label { font-size:13px; font-weight:600; min-width:50px; }
+  .row input, .row select { flex:1; min-width:100px; border:1.5px solid #d0d5d8; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; background:#f8faf9; }
+  .row input { width:80px; flex:0 0 auto; }
+  .row .unit { font-size:12px; color:#888; }
+  .result { background:#f0faf5; border-radius:10px; padding:14px 16px; margin-top:6px; font-size:13px; line-height:2.0; }
+  .result strong { color:#2e7d32; }
+  .btn-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .chip { padding:6px 12px; border-radius:20px; border:1.5px solid #d0d5d8; background:#f8faf9; font-size:12px; cursor:pointer; transition:all .15s; user-select:none; white-space:nowrap; }
+  .chip:hover { border-color:#2c5f4a; background:#f0faf5; }
+  .chip.sel { background:#2c5f4a; color:#fff; border-color:#2c5f4a; }
+  .info { font-size:11px; color:#888; margin-top:6px; line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🔄 食物替换计算器</h1>
+
+<!-- 主食 -->
+<div class="card">
+  <h2>🍚 主食互换</h2>
+  <div class="row">
+    <label>我吃了</label>
+    <input type="number" id="stapleAmt" value="150" min="10" max="2000" style="width:75px;">
+    <select id="stapleFrom">
+      <option value="ricemillet">熟米饭/杂粮饭/糙米饭</option>
+      <option value="oats">燕麦麸皮（干）</option>
+      <option value="oatmeal">燕麦片（干）</option>
+      <option value="bread">全麦面包</option>
+      <option value="sweetpotato">红薯（熟）</option>
+      <option value="purplepotato">紫薯（熟）</option>
+      <option value="corn">玉米（熟，可食部分）</option>
+      <option value="potato">土豆（熟）</option>
+      <option value="taro">芋头（熟）</option>
+      <option value="yam">山药（熟）</option>
+      <option value="pumpkin">贝贝南瓜（熟）</option>
+      <option value="noodlesWet">鲜面条/米粉（熟）</option>
+      <option value="pastaDry">干意面</option>
+      <option value="noodlesDry">干挂面</option>
+      <option value="buckwheat">荞麦面（熟）</option>
+      <option value="steamedbun">馒头</option>
+      <option value="roll">花卷</option>
+      <option value="dumplingWrapper">饺子皮（10个≈170g米饭）</option>
+      <option value="quinoa">藜麦（熟）</option>
+      <option value="milletPorridge">小米粥（稠）</option>
+    </select>
+    <span style="font-size:12px;color:#888;">g</span>
+  </div>
+  <div class="btn-row" id="stapleBtns">
+    <span class="chip" data-key="ricemillet">米饭/杂粮饭</span>
+    <span class="chip" data-key="oats">燕麦麸皮</span>
+    <span class="chip" data-key="oatmeal">燕麦片</span>
+    <span class="chip" data-key="bread">全麦面包</span>
+    <span class="chip" data-key="sweetpotato">红薯</span>
+    <span class="chip" data-key="purplepotato">紫薯</span>
+    <span class="chip" data-key="corn">玉米</span>
+    <span class="chip" data-key="potato">土豆</span>
+    <span class="chip" data-key="taro">芋头</span>
+    <span class="chip" data-key="yam">山药</span>
+    <span class="chip" data-key="pumpkin">贝贝南瓜</span>
+    <span class="chip" data-key="noodlesWet">鲜面条/米粉</span>
+    <span class="chip" data-key="pastaDry">干意面</span>
+    <span class="chip" data-key="noodlesDry">干挂面</span>
+    <span class="chip" data-key="buckwheat">荞麦面</span>
+    <span class="chip" data-key="steamedbun">馒头</span>
+    <span class="chip" data-key="roll">花卷</span>
+    <span class="chip" data-key="dumplingWrapper">饺子皮(10个)</span>
+    <span class="chip" data-key="quinoa">藜麦</span>
+    <span class="chip" data-key="milletPorridge">小米粥</span>
+  </div>
+  <div class="result" id="stapleResult">点上面选一个想换的主食 →</div>
+  <div class="info">除标注外均为熟重。主干换算：熟米饭 150g ≈ 燕麦麸皮 38g ≈ 全麦面包 60g ≈ 红薯 188g ≈ 玉米 1根 ≈ 土豆 300g ≈ 干意面 45g ≈ 馒头 75g</div>
+</div>
+
+<!-- 蛋白质 -->
+<div class="card">
+  <h2>🥩 蛋白质互换</h2>
+  <div class="row">
+    <label>我吃了</label>
+    <input type="number" id="proteinAmt" value="100" min="10" max="1000" style="width:75px;">
+    <select id="proteinFrom">
+      <option value="chicken">鸡胸肉 生</option>
+      <option value="fish">鱼片/虾仁 生</option>
+      <option value="beef">瘦牛肉 生</option>
+      <option value="pork">瘦猪肉 生</option>
+      <option value="leg">去皮鸡腿 生</option>
+      <option value="tofuFirm">老豆腐</option>
+      <option value="tofuSoft">嫩豆腐</option>
+      <option value="tofuDry">豆干</option>
+      <option value="egg">鸡蛋（水煮）</option>
+    </select>
+    <span style="font-size:12px;color:#888;">g</span>
+  </div>
+  <div class="btn-row" id="proteinBtns">
+    <span class="chip" data-key="chicken">鸡胸肉</span>
+    <span class="chip" data-key="fish">鱼片/虾仁</span>
+    <span class="chip" data-key="beef">瘦牛肉</span>
+    <span class="chip" data-key="pork">瘦猪肉</span>
+    <span class="chip" data-key="leg">去皮鸡腿</span>
+    <span class="chip" data-key="tofuFirm">老豆腐</span>
+    <span class="chip" data-key="tofuSoft">嫩豆腐</span>
+    <span class="chip" data-key="tofuDry">豆干</span>
+    <span class="chip" data-key="egg">鸡蛋</span>
+  </div>
+  <div class="result" id="proteinResult">点上面选一个想换的蛋白质 →</div>
+  <div class="info">肉类均为生重，1:1 互换。老豆腐 ≈2.5g 换 1g 瘦肉，嫩豆腐 ≈3.5g 换 1g 瘦肉，豆干 ≈1.6g 换 1g 瘦肉。鸡蛋 3 个 ≈ 100g 鸡胸肉。</div>
+</div>
+
+<!-- 油脂+坚果 -->
+<div class="card">
+  <h2>🥜 油脂 & 坚果互换</h2>
+  <div class="row">
+    <label>我用了</label>
+    <input type="number" id="fatAmt" value="8" min="1" max="200" style="width:75px;">
+    <select id="fatFrom">
+      <option value="oil">烹饪油（橄榄/山茶/牛油果/黄油）</option>
+      <option value="walnut">核桃仁</option>
+      <option value="almond">杏仁</option>
+      <option value="cashew">腰果</option>
+      <option value="peanut">花生米</option>
+      <option value="sunflower">瓜子仁</option>
+      <option value="pistachio">开心果</option>
+      <option value="avocado">牛油果</option>
+      <option value="sesame">芝麻</option>
+    </select>
+    <span style="font-size:12px;color:#888;">g</span>
+  </div>
+  <div class="btn-row" id="fatBtns">
+    <span class="chip" data-key="oil">烹饪油</span>
+    <span class="chip" data-key="walnut">核桃仁</span>
+    <span class="chip" data-key="almond">杏仁</span>
+    <span class="chip" data-key="cashew">腰果</span>
+    <span class="chip" data-key="peanut">花生米</span>
+    <span class="chip" data-key="sunflower">瓜子仁</span>
+    <span class="chip" data-key="pistachio">开心果</span>
+    <span class="chip" data-key="avocado">牛油果</span>
+    <span class="chip" data-key="sesame">芝麻</span>
+  </div>
+  <div class="result" id="fatResult">点上面选一个想换的油脂/坚果 →</div>
+  <div class="info">烹饪油之间 1:1 互换。坚果换算：8g 油 ≈ 12g 核桃 ≈ 14g 杏仁 ≈ 17g 腰果 ≈ 15g 花生 ≈ 14g 瓜子 ≈ 16g 开心果 ≈ 50g 牛油果</div>
+</div>
+
+<!-- 蔬菜·可溶性纤维 -->
+<div class="card">
+  <h2>🥬 蔬菜——可溶性纤维清单</h2>
+  <div style="font-size:13px;line-height:2.0;">
+    <strong>含量偏高（排便不好时多吃）：</strong><br>
+    秋葵、木耳、银耳、金针菇、香菇、南瓜、胡萝卜、山药、芋头、莲藕<br><br>
+    <strong>含量中等：</strong><br>
+    冬瓜、丝瓜、苦瓜、白萝卜、西兰花、菜花、番茄、茄子、菠菜、生菜、芹菜<br><br>
+    <strong>易胀气少碰：</strong><br>
+    红薯、豆类、洋葱、韭菜、白萝卜（生）、西兰花（生）
+  </div>
+</div>
+
+</div>
+
+<script>
+// 主食换算基准：熟米饭 1.0
+const stapleConv = {
+  ricemillet: {name:'熟米饭/杂粮饭/糙米饭', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  oats: {name:'燕麦麸皮（干）', to:{ricemillet:4, oats:1, oatmeal:1, bread:1.6, sweetpotato:5, purplepotato:5, corn:4, potato:8, taro:5, yam:5, pumpkin:6, noodlesWet:4, pastaDry:1.2, noodlesDry:1.2, buckwheat:4, steamedbun:2, roll:2, dumplingWrapper:4, quinoa:4, milletPorridge:12}},
+  oatmeal: {name:'燕麦片（干）', to:{ricemillet:4, oats:1, oatmeal:1, bread:1.6, sweetpotato:5, purplepotato:5, corn:4, potato:8, taro:5, yam:5, pumpkin:6, noodlesWet:4, pastaDry:1.2, noodlesDry:1.2, buckwheat:4, steamedbun:2, roll:2, dumplingWrapper:4, quinoa:4, milletPorridge:12}},
+  bread: {name:'全麦面包', to:{ricemillet:2.5, oats:0.63, oatmeal:0.63, bread:1, sweetpotato:3.1, purplepotato:3.1, corn:2.5, potato:5, taro:3.1, yam:3.1, pumpkin:3.75, noodlesWet:2.5, pastaDry:0.75, noodlesDry:0.75, buckwheat:2.5, steamedbun:1.25, roll:1.25, dumplingWrapper:2.5, quinoa:2.5, milletPorridge:7.5}},
+  sweetpotato: {name:'红薯（熟）', to:{ricemillet:0.8, oats:0.2, oatmeal:0.2, bread:0.32, sweetpotato:1, purplepotato:1, corn:0.8, potato:1.6, taro:1, yam:1, pumpkin:1.2, noodlesWet:0.8, pastaDry:0.24, noodlesDry:0.24, buckwheat:0.8, steamedbun:0.4, roll:0.4, dumplingWrapper:0.8, quinoa:0.8, milletPorridge:2.4}},
+  purplepotato: {name:'紫薯（熟）', to:{ricemillet:0.8, oats:0.2, oatmeal:0.2, bread:0.32, sweetpotato:1, purplepotato:1, corn:0.8, potato:1.6, taro:1, yam:1, pumpkin:1.2, noodlesWet:0.8, pastaDry:0.24, noodlesDry:0.24, buckwheat:0.8, steamedbun:0.4, roll:0.4, dumplingWrapper:0.8, quinoa:0.8, milletPorridge:2.4}},
+  corn: {name:'玉米（熟）', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  potato: {name:'土豆（熟）', to:{ricemillet:0.5, oats:0.125, oatmeal:0.125, bread:0.2, sweetpotato:0.63, purplepotato:0.63, corn:0.5, potato:1, taro:0.63, yam:0.63, pumpkin:0.75, noodlesWet:0.5, pastaDry:0.15, noodlesDry:0.15, buckwheat:0.5, steamedbun:0.25, roll:0.25, dumplingWrapper:0.5, quinoa:0.5, milletPorridge:1.5}},
+  taro: {name:'芋头（熟）', to:{ricemillet:0.8, oats:0.2, oatmeal:0.2, bread:0.32, sweetpotato:1, purplepotato:1, corn:0.8, potato:1.6, taro:1, yam:1, pumpkin:1.2, noodlesWet:0.8, pastaDry:0.24, noodlesDry:0.24, buckwheat:0.8, steamedbun:0.4, roll:0.4, dumplingWrapper:0.8, quinoa:0.8, milletPorridge:2.4}},
+  yam: {name:'山药（熟）', to:{ricemillet:0.8, oats:0.2, oatmeal:0.2, bread:0.32, sweetpotato:1, purplepotato:1, corn:0.8, potato:1.6, taro:1, yam:1, pumpkin:1.2, noodlesWet:0.8, pastaDry:0.24, noodlesDry:0.24, buckwheat:0.8, steamedbun:0.4, roll:0.4, dumplingWrapper:0.8, quinoa:0.8, milletPorridge:2.4}},
+  pumpkin: {name:'贝贝南瓜（熟）', to:{ricemillet:0.67, oats:0.17, oatmeal:0.17, bread:0.27, sweetpotato:0.83, purplepotato:0.83, corn:0.67, potato:1.33, taro:0.83, yam:0.83, pumpkin:1, noodlesWet:0.67, pastaDry:0.2, noodlesDry:0.2, buckwheat:0.67, steamedbun:0.33, roll:0.33, dumplingWrapper:0.67, quinoa:0.67, milletPorridge:2}},
+  noodlesWet: {name:'鲜面条/米粉（熟）', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  pastaDry: {name:'干意面', to:{ricemillet:3.3, oats:0.83, oatmeal:0.83, bread:1.33, sweetpotato:4.2, purplepotato:4.2, corn:3.3, potato:6.7, taro:4.2, yam:4.2, pumpkin:5, noodlesWet:3.3, pastaDry:1, noodlesDry:1, buckwheat:3.3, steamedbun:1.67, roll:1.67, dumplingWrapper:3.3, quinoa:3.3, milletPorridge:10}},
+  noodlesDry: {name:'干挂面', to:{ricemillet:3.3, oats:0.83, oatmeal:0.83, bread:1.33, sweetpotato:4.2, purplepotato:4.2, corn:3.3, potato:6.7, taro:4.2, yam:4.2, pumpkin:5, noodlesWet:3.3, pastaDry:1, noodlesDry:1, buckwheat:3.3, steamedbun:1.67, roll:1.67, dumplingWrapper:3.3, quinoa:3.3, milletPorridge:10}},
+  buckwheat: {name:'荞麦面（熟）', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  steamedbun: {name:'馒头', to:{ricemillet:2, oats:0.5, oatmeal:0.5, bread:0.8, sweetpotato:2.5, purplepotato:2.5, corn:2, potato:4, taro:2.5, yam:2.5, pumpkin:3, noodlesWet:2, pastaDry:0.6, noodlesDry:0.6, buckwheat:2, steamedbun:1, roll:1, dumplingWrapper:2, quinoa:2, milletPorridge:6}},
+  roll: {name:'花卷', to:{ricemillet:2, oats:0.5, oatmeal:0.5, bread:0.8, sweetpotato:2.5, purplepotato:2.5, corn:2, potato:4, taro:2.5, yam:2.5, pumpkin:3, noodlesWet:2, pastaDry:0.6, noodlesDry:0.6, buckwheat:2, steamedbun:1, roll:1, dumplingWrapper:2, quinoa:2, milletPorridge:6}},
+  dumplingWrapper: {name:'饺子皮(10个≈170g米饭)', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  quinoa: {name:'藜麦（熟）', to:{ricemillet:1, oats:0.25, oatmeal:0.25, bread:0.4, sweetpotato:1.25, purplepotato:1.25, corn:1, potato:2, taro:1.25, yam:1.25, pumpkin:1.5, noodlesWet:1, pastaDry:0.3, noodlesDry:0.3, buckwheat:1, steamedbun:0.5, roll:0.5, dumplingWrapper:1, quinoa:1, milletPorridge:3}},
+  milletPorridge: {name:'小米粥（稠）', to:{ricemillet:0.33, oats:0.083, oatmeal:0.083, bread:0.13, sweetpotato:0.42, purplepotato:0.42, corn:0.33, potato:0.67, taro:0.42, yam:0.42, pumpkin:0.5, noodlesWet:0.33, pastaDry:0.1, noodlesDry:0.1, buckwheat:0.33, steamedbun:0.17, roll:0.17, dumplingWrapper:0.33, quinoa:0.33, milletPorridge:1}},
+};
+
+const proteinConv = {
+  chicken: {name:'鸡胸肉 生', to:{chicken:1, fish:1, beef:1, pork:1, leg:1, tofuFirm:2.5, tofuSoft:3.5, tofuDry:1.6, egg:0.03}},
+  fish: {name:'鱼片/虾仁 生', to:{chicken:1, fish:1, beef:1, pork:1, leg:1, tofuFirm:2.5, tofuSoft:3.5, tofuDry:1.6, egg:0.03}},
+  beef: {name:'瘦牛肉 生', to:{chicken:1, fish:1, beef:1, pork:1, leg:1, tofuFirm:2.5, tofuSoft:3.5, tofuDry:1.6, egg:0.03}},
+  pork: {name:'瘦猪肉 生', to:{chicken:1, fish:1, beef:1, pork:1, leg:1, tofuFirm:2.5, tofuSoft:3.5, tofuDry:1.6, egg:0.03}},
+  leg: {name:'去皮鸡腿 生', to:{chicken:1, fish:1, beef:1, pork:1, leg:1, tofuFirm:2.5, tofuSoft:3.5, tofuDry:1.6, egg:0.03}},
+  tofuFirm: {name:'老豆腐', to:{chicken:0.4, fish:0.4, beef:0.4, pork:0.4, leg:0.4, tofuFirm:1, tofuSoft:1.4, tofuDry:0.64, egg:0.012}},
+  tofuSoft: {name:'嫩豆腐', to:{chicken:0.29, fish:0.29, beef:0.29, pork:0.29, leg:0.29, tofuFirm:0.71, tofuSoft:1, tofuDry:0.46, egg:0.008}},
+  tofuDry: {name:'豆干', to:{chicken:0.63, fish:0.63, beef:0.63, pork:0.63, leg:0.63, tofuFirm:1.56, tofuSoft:2.19, tofuDry:1, egg:0.019}},
+  egg: {name:'鸡蛋（个）', to:{chicken:33, fish:33, beef:33, pork:33, leg:33, tofuFirm:88, tofuSoft:140, tofuDry:58, egg:1}},
+};
+
+// 油脂+坚果换算基准：烹饪油 1.0
+const fatConv = {
+  oil: {name:'烹饪油', to:{oil:1, walnut:1.5, almond:1.75, cashew:2.1, peanut:1.9, sunflower:1.75, pistachio:2, avocado:6.25, sesame:1.6}},
+  walnut: {name:'核桃仁', to:{oil:0.67, walnut:1, almond:1.17, cashew:1.4, peanut:1.27, sunflower:1.17, pistachio:1.33, avocado:4.17, sesame:1.07}},
+  almond: {name:'杏仁', to:{oil:0.57, walnut:0.86, almond:1, cashew:1.2, peanut:1.09, sunflower:1, pistachio:1.14, avocado:3.57, sesame:0.91}},
+  cashew: {name:'腰果', to:{oil:0.48, walnut:0.71, almond:0.83, cashew:1, peanut:0.9, sunflower:0.83, pistachio:0.95, avocado:2.98, sesame:0.76}},
+  peanut: {name:'花生米', to:{oil:0.53, walnut:0.79, almond:0.92, cashew:1.11, peanut:1, sunflower:0.92, pistachio:1.05, avocado:3.29, sesame:0.84}},
+  sunflower: {name:'瓜子仁', to:{oil:0.57, walnut:0.86, almond:1, cashew:1.2, peanut:1.09, sunflower:1, pistachio:1.14, avocado:3.57, sesame:0.91}},
+  pistachio: {name:'开心果', to:{oil:0.5, walnut:0.75, almond:0.88, cashew:1.05, peanut:0.95, sunflower:0.88, pistachio:1, avocado:3.13, sesame:0.8}},
+  avocado: {name:'牛油果', to:{oil:0.16, walnut:0.24, almond:0.28, cashew:0.34, peanut:0.3, sunflower:0.28, pistachio:0.32, avocado:1, sesame:0.26}},
+  sesame: {name:'芝麻', to:{oil:0.63, walnut:0.94, almond:1.09, cashew:1.31, peanut:1.19, sunflower:1.09, pistachio:1.25, avocado:3.91, sesame:1}},
+};
+
+function setupCalc(cardId, conv, amtId, fromId, resultId, btnsId) {
+  const btns = document.getElementById(btnsId);
+  const amtEl = document.getElementById(amtId);
+  const fromEl = document.getElementById(fromId);
+  const resultEl = document.getElementById(resultId);
+
+  function calc() {
+    const from = fromEl.value;
+    const amt = parseFloat(amtEl.value) || 0;
+    const sel = btns.querySelector('.sel');
+    if (!sel) return;
+    const to = sel.dataset.key;
+    if (!conv[from] || !conv[from].to[to]) return;
+    const rate = conv[from].to[to];
+    const result = Math.round(amt * rate);
+    const fromName = conv[from].name;
+    const toName = conv[to].name;
+    const toUnit = to==='egg'?'个':'g';
+    resultEl.innerHTML = `<strong>${amt}${from==='egg'?'个':'g'} ${fromName}</strong> → <strong>${result}${toUnit} ${toName}</strong>`;
+  }
+
+  btns.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      btns.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+      this.classList.add('sel');
+      calc();
+    });
+  });
+
+  amtEl.addEventListener('input', calc);
+  fromEl.addEventListener('change', calc);
+  btns.querySelector('.chip').classList.add('sel');
+  calc();
+}
+
+setupCalc('staple', stapleConv, 'stapleAmt', 'stapleFrom', 'stapleResult', 'stapleBtns');
+setupCalc('protein', proteinConv, 'proteinAmt', 'proteinFrom', 'proteinResult', 'proteinBtns');
+setupCalc('fat', fatConv, 'fatAmt', 'fatFrom', 'fatResult', 'fatBtns');
+</script>
+</body>
+</html>

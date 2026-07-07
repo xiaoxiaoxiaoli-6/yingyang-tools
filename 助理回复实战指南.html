@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>助理回复实战指南 v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: #f0f2f5; color: #2d3436; line-height: 1.85; padding: 20px 12px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  .hero {
+    background: linear-gradient(135deg, #0c0c1d, #1a1a3e, #2d1b69);
+    color: #fff; border-radius: 16px; padding: 26px 30px; margin-bottom: 16px; text-align: center;
+  }
+  .hero h1 { font-size: 23px; font-weight: 900; }
+  .hero .sub { font-size: 12px; opacity: .7; margin-top: 4px; }
+
+  .card {
+    background: #fff; border-radius: 14px; padding: 20px 24px; margin-bottom: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
+  }
+  .card h2 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+
+  /* ===== Framework boxes ===== */
+  .fw-box {
+    background: #f8f9fa; border-radius: 10px; padding: 16px 20px; margin: 10px 0;
+    font-size: 13px; line-height: 2; border-left: 4px solid #6c5ce7;
+  }
+  .fw-box.green { border-left-color: #00b894; }
+  .fw-box.orange { border-left-color: #e17055; }
+  .fw-box.purple { border-left-color: #6c5ce7; }
+  .fw-box .slot {
+    background: #fff; border: 2px dashed #ddd; border-radius: 6px;
+    padding: 3px 10px; color: #888; font-style: italic;
+  }
+
+  /* ===== Flow ===== */
+  .flow-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  @media (max-width: 600px) { .flow-steps { grid-template-columns: repeat(2, 1fr); } }
+  .flow-step {
+    background: #f0f7ff; border-radius: 10px; padding: 12px; text-align: center; font-size: 11px;
+    position: relative;
+  }
+  .flow-step .step-num {
+    width: 24px; height: 24px; border-radius: 50%; background: #0984e3; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 12px; margin-bottom: 6px;
+  }
+  .flow-step .step-title { font-weight: 700; font-size: 12px; }
+
+  /* ===== Table demo ===== */
+  .table-demo {
+    overflow-x: auto; font-size: 11px; margin: 10px 0;
+  }
+  .table-demo table { border-collapse: collapse; width: max-content; min-width: 100%; }
+  .table-demo th {
+    background: #2d3436; color: #fff; padding: 6px 8px; white-space: nowrap;
+    font-weight: 500; font-size: 10px; position: sticky; top: 0;
+  }
+  .table-demo td {
+    padding: 5px 8px; border: 1px solid #e0e0e0; text-align: center; white-space: nowrap;
+  }
+  .table-demo .red-cell { background: #ff7675; color: #fff; font-weight: 700; }
+  .table-demo .yellow-cell { background: #ffeaa7; }
+  .table-demo .col-date { background: #f0f0f0; font-weight: 700; }
+  .table-demo .col-metric { background: #fafafa; font-weight: 600; text-align: left; }
+
+  .highlight-red { background: #ff7675; color: #fff; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+  .highlight-yellow { background: #ffeaa7; padding: 1px 6px; border-radius: 4px; font-weight: 700; font-size: 11px; }
+
+  /* Before/After */
+  .ba-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+  @media (max-width: 500px) { .ba-row { grid-template-columns: 1fr; } }
+  .ba-box {
+    border-radius: 10px; padding: 12px 14px; font-size: 12px; line-height: 1.9;
+  }
+  .ba-before { background: #fff5f5; border: 1px solid #ff6b6b55; }
+  .ba-before .ba-label { color: #d63031; font-weight: 700; font-size: 11px; }
+  .ba-after { background: #f0fff4; border: 1px solid #00b89455; }
+  .ba-after .ba-label { color: #00b894; font-weight: 700; font-size: 11px; }
+
+  .dont-list { list-style: none; padding: 0; }
+  .dont-list li { padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+  .dont-list li:last-child { border-bottom: none; }
+  .bad-word { color: #d63031; font-weight: 600; text-decoration: line-through; }
+  .good-word { color: #00b894; font-weight: 600; }
+
+  .rule-box {
+    background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin: 8px 0;
+    border-left: 4px solid #d63031; font-size: 13px;
+  }
+  .info-box {
+    background: #f0f7ff; border-radius: 10px; padding: 12px 16px; margin: 8px 0;
+    border-left: 4px solid #0984e3; font-size: 13px;
+  }
+  .check-list { list-style: none; padding: 0; }
+  .check-list li { padding: 6px 0; font-size: 13px; }
+  .check-list li::before { content: '☐ '; color: #6c5ce7; font-weight: 700; }
+
+  .footer { text-align: center; color: #b2bec3; font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+  <h1>🤖→👤 助理实战指南 v2</h1>
+  <div class="sub">框架式回复 · 先问原因再给建议 · 表格填法 · 搜索+标红 · 减轻你的工作量</div>
+</div>
+
+<!-- ===== 核心任务 ===== -->
+<div class="card">
+  <h2>🎯 你的核心任务（就三件事）</h2>
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <tr>
+      <td style="padding:10px 14px; width:36px; font-size:22px; font-weight:900; color:#6c5ce7;">1</td>
+      <td style="padding:10px 14px;"><strong>每天早上收数据：</strong>体重、排便、压力、睡眠时长、昨晚外食没、今天有运动没 → 填入原始表格会员.xlsx</td>
+    </tr>
+    <tr style="background:#fafafa;">
+      <td style="padding:10px 14px; font-size:22px; font-weight:900; color:#6c5ce7;">2</td>
+      <td style="padding:10px 14px;"><strong>三餐打卡分类回复：</strong>按三种场景选框架 → 自己往里填内容 → 发送（不是复制粘贴模板）</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px; font-size:22px; font-weight:900; color:#6c5ce7;">3</td>
+      <td style="padding:10px 14px;"><strong>每晚汇总发你：</strong>把会员按三类整理好发你，标红异常数据，你来下调整决策</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ===== 每天早上：收数据流程 ===== -->
+<div class="card">
+  <h2>🌅 每天早上：收数据（7:00-9:00）</h2>
+  <p style="font-size:13px; color:#888; margin-bottom:10px;">
+    会员每天早上发来：体重 + 排便 + 压力 + 睡眠时长。你还需要追问两个新东西。
+  </p>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-title">早上收4项基础数据</div>
+      会员统一发：体重 / 排便 / 压力 / 睡眠时长<br>有漏的 → 单独私聊追问
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-title">当天晚上追问：外食？</div>
+      晚饭后问："今天有外食吗？"<br>有 → 记"外食"<br>无 → 记"—"
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-title">当天追问：运动？</div>
+      让会员发当天运动情况<br>跑步5km/力训/芭蕾 → 记下来<br>无 → 记"—"
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-title">打开在线表格填入</div>
+      Ctrl+F 搜会员名<br>→ 找到当天日期<br>→ 填进去 → 标红异常
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>💡 为什么加"外食"和"运动"这两项？</strong><br>
+    • 外食 → 油盐不可控、体重可能短暂上涨（不是真胖），营养师需要知道这个背景<br>
+    • 运动 → 消耗不同，饮食需要跟着调。跑步日 vs 力训日 vs 休息日，吃的不一样<br>
+    • 外食是<strong>当天晚上</strong>收集，运动是<strong>当天</strong>让会员发你。都填在表格的<strong>"评价"行里</strong>，格式："外食 ✓ / 跑步5km"
+  </div>
+</div>
+
+<!-- ===== 表格怎么填 ===== -->
+<div class="card">
+  <h2>📊 表格怎么填（原始表格会员.xlsx）</h2>
+  <p style="font-size:13px; color:#888; margin-bottom:8px;">
+    表格结构：左边两列是<strong>日期+指标</strong>，上面第一行是<strong>所有会员名字</strong>。每个日期占6行。
+  </p>
+
+  <div class="table-demo">
+    <table>
+      <thead>
+        <tr><th>日期</th><th>指标</th><th>张同学</th><th>朱同学</th><th>一航</th><th>…</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="col-date" rowspan="6">6.30</td><td class="col-metric">体重（kg）</td><td>60.95</td><td>57.8</td><td>85.0</td><td></td></tr>
+        <tr><td class="col-metric">排便</td><td>无</td><td>有</td><td>有</td><td></td></tr>
+        <tr><td class="col-metric">压力</td><td>小</td><td>小</td><td>小</td><td></td></tr>
+        <tr><td class="col-metric">睡眠</td><td>差</td><td>好</td><td>好</td><td></td></tr>
+        <tr><td class="col-metric">时长</td><td>6h</td><td>7.5h</td><td>8h</td><td></td></tr>
+        <tr><td class="col-metric">评价</td><td>外食✓ 跑步5km</td><td>—</td><td>力训</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box">
+    <strong>🔍 怎么快速找到会员的格子？</strong><br>
+    <strong>Ctrl+F → 输入会员名</strong>（比如"张同学"）→ 回车 → 自动跳到那一列。<br>
+    然后往下滚到今天的日期行，对应的6行指标逐个填进去。<br>
+    <span style="font-size:11px; color:#888;">（120多个会员，不用手动一个个找，搜索键是你最好的朋友）</span>
+  </div>
+
+  <div class="rule-box">
+    <strong>🔴 标红规则（在在线表格里操作，我直接能看到）：</strong><br>
+    • 体重连续 <strong>3天不变</strong> → 在<strong>体重那一栏的格子</strong>，把<strong>格子底色标红</strong>（不是文字标红，是填充红色底色）<br>
+    • 排便连续 <strong>2天"无"</strong> → 格子底色标红（肠道减速信号）<br>
+    • 睡眠时长 <strong>&lt;6h</strong> → 格子底色标红<br>
+    • 睡眠<strong>质量连续2天"差"</strong> → 格子底色标红（睡眠债累积信号）<br>
+    • 标红方法：Excel/在线表格里 → 选中格子 → 填充颜色 → 红色。底色一变红，我打开表格一眼就看到了。
+  </div>
+</div>
+
+<!-- ===== 三种场景回复框架 ===== -->
+<div class="card">
+  <h2>💬 三种场景 · 回复框架（往里面填，不是复制粘贴）</h2>
+  <p style="font-size:13px; color:#888; margin-bottom:10px;">
+    每种场景给你一个<strong>结构</strong>。你按照结构，用自己的话填内容。这样每个会员的回复都不一样，不会显得重复。
+  </p>
+
+  <!-- 场景A -->
+  <div class="fw-box green">
+    <h4 style="color:#00b894;">✅ 场景A：会员按计划走了</h4>
+    <p style="margin:6px 0;"><strong>框架（3句话就够）：</strong></p>
+    <p>1️⃣ <strong>具体夸一个细节</strong> → 你看到了什么？（别只说"挺好的"，要说"杂粮饭量刚好""蔬菜颜色搭配好看""时间很准时"）</p>
+    <p>2️⃣ <strong>跟之前比</strong> → "比第一周进步好多""你连续X天都对了""现在搭配越来越熟练了"</p>
+    <p>3️⃣ <strong>给明天一句话</strong> → "明天继续保持这个节奏""照这样下去目标很快到"</p>
+    <p style="margin-top:8px; font-size:11px; color:#888;">⚠️ 变体：如果连续5天全对 → 第2句加重夸。"你是我见过最自律的会员之一了，连续5天全对，真的太稳了。"</p>
+  </div>
+
+  <!-- 场景B -->
+  <div class="fw-box orange">
+    <h4 style="color:#e17055;">⚠️ 场景B：会员没按计划走</h4>
+    <p style="margin:6px 0;"><strong>框架（先问原因，再给建议）：</strong></p>
+    <p>1️⃣ <strong>先问一句</strong> → 别上来就纠正。"今天这餐是外食了吗？""是饿了所以多盛了饭？""今天太忙了没来得及准备？"</p>
+    <p>2️⃣ <strong>根据原因回应</strong> →<br>
+    &nbsp;&nbsp;&nbsp;<strong>外食了，但有肉有菜有主食</strong> → "外食能注意搭配已经很棒了！👏 涮一下水油能少大半，下次试试～"（先肯定，再给轻建议）<br>
+    &nbsp;&nbsp;&nbsp;<strong>外食了，但缺了某样（比如只有面/只有肉，没蔬菜）</strong> → "外食确实难控制～不过你注意到没，今天这餐少了蔬菜/主食/蛋白质。下次外食可以盯着三个东西点：一份肉+一份菜+一份主食，这样结构就对了。"<br>
+    &nbsp;&nbsp;&nbsp;<strong>饿了所以多吃了</strong> → "说明上餐量可能不太够，我帮你记下来反馈给营养师看看。"<br>
+    &nbsp;&nbsp;&nbsp;<strong>忘了/太忙没准备</strong> → "没事，明天回归正常就行，一顿不影响💪"</p>
+    <p>3️⃣ <strong>给一个简单动作</strong> → 只说一个，别列清单。"明天午餐主食少盛1/3" 或 "下顿加一把蔬菜"</p>
+    <p style="margin-top:8px; font-size:11px; color:#888;">⚠️ 核心：先搞清楚<strong>为什么</strong>没按计划走，才能给对建议。外食不是问题，外食<strong>没按"有肉有菜有主食"的结构来</strong>才是问题。上来就说"你吃多了"——这是最没用的回复。</p>
+  </div>
+
+  <!-- 场景C -->
+  <div class="fw-box purple">
+    <h4 style="color:#6c5ce7;">💬 场景C：会员说了话，需要认真回应</h4>
+    <p style="margin:6px 0;"><strong>框架（接住三个东西）：</strong></p>
+    <p>1️⃣ <strong>接住情绪</strong> → 她说了什么情绪词？（焦虑/愧疚/困惑/开心）先回应这个。<br>
+    &nbsp;&nbsp;&nbsp;"哈哈没事的""我理解你的担心""哇这么开心！"</p>
+    <p>2️⃣ <strong>回应事实</strong> → 她说了什么具体事情？（吃多了/没掉秤/累了/姨妈来了）给一个简单解释。<br>
+    &nbsp;&nbsp;&nbsp;"一顿吃多不会胖的""姨妈前后囤水很正常"</p>
+    <p>3️⃣ <strong>给下一步</strong> → 她接下来该干嘛？一句话说清楚。<br>
+    &nbsp;&nbsp;&nbsp;"今晚主食减1/3就好""这两天别称体重""明天正常吃回来"</p>
+    <p style="margin-top:8px; font-size:11px; color:#888;">⚠️ 自检：回之前看一眼，会员说了A/B/C，你至少接了其中两个吗？只接一个 = 敷衍。</p>
+  </div>
+
+  <div class="ba-row">
+    <div class="ba-box ba-before">
+      <div class="ba-label">❌ 敷衍的例子</div>
+      <strong>会员：</strong>"今天中午吃撑了好难受啊😭感觉坚持不下去了"<br>
+      <strong>助理：</strong>"好的收到，晚餐记得按计划吃。"<br>
+      <span style="color:#d63031;">← 情绪没接、事实没回应、下一步太笼统。三样全没接住。</span>
+    </div>
+    <div class="ba-box ba-after">
+      <div class="ba-label">✅ 按框架来</div>
+      <strong>会员：</strong>"今天中午吃撑了好难受啊😭感觉坚持不下去了"<br>
+      <strong>助理：</strong>"哈哈吃撑了说明你享受了美食呀～一顿真的不会胖的，别给自己太大压力🙌 今晚可以把主食减1/3，散散步帮助消化，明天就恢复正常了。你能坚持到现在已经很厉害了，别放弃💪"<br>
+      <span style="color:#00b894;">← 情绪✓ 事实✓ 下一步✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 去AI味 ===== -->
+<div class="card">
+  <h2>🔇 去AI味（每次发之前扫一眼）</h2>
+  <ul class="dont-list">
+    <li><span class="bad-word">"建议您"</span> → <span class="good-word">"可以试试" / "下次可以"</span></li>
+    <li><span class="bad-word">"摄入量" / "摄入"</span> → <span class="good-word">"吃的量" / "吃的"</span></li>
+    <li><span class="bad-word">"控制"</span> → <span class="good-word">"注意一下" / "少一点"</span></li>
+    <li><span class="bad-word">"超标"</span> → <span class="good-word">"比计划多了一点"</span></li>
+    <li><span class="bad-word">"此外" / "另外" / "同时"</span> → <span class="good-word">删掉，直接说下一句</span></li>
+    <li><span class="bad-word">"根据您的计划"</span> → <span class="good-word">"你的计划里" / "按你计划"</span></li>
+    <li><span class="bad-word">回复超过6行</span> → <span class="good-word">控制在4-5行，长了没人看</span></li>
+    <li><span class="bad-word">每句话都加表情</span> → <span class="good-word">每2-3句加一个就行</span></li>
+    <li><span class="bad-word">直接复制AI答案</span> → <span class="good-word">读一遍，用自己的话重说。问自己：我对朋友会这么说话吗？</span></li>
+  </ul>
+</div>
+
+<!-- ===== 每日汇总 ===== -->
+<div class="card">
+  <h2>📋 每晚汇总（直接在在线表格里完成）</h2>
+  <p style="font-size:13px; color:#888; margin-bottom:8px;">
+    不需要单独写一段文字发我。<strong>你只需要把在线表格填好+标红，我打开表格就全看到了。</strong>
+  </p>
+
+  <div class="info-box">
+    <strong>📌 每晚你只需要做：</strong><br>
+    1. 确认当天所有会员的数据都填进表格了<br>
+    2. 按标红规则，把异常格子底色标红<br>
+    3. 标红的 = 需要我关注的 → 我会在表格里一眼看到<br>
+    4. 如果有特别紧急的事（比如会员说身体不舒服、想放弃），单独私聊我
+  </div>
+
+  <div class="rule-box">
+    <strong>🔴 标红 = 需要我关注。表格是在线的，你标红了我就看得到。</strong><br>
+    不需要再打一段字告诉我"xxx体重3天不动"——我打开表格，红色格子自己会说话。
+  </div>
+</div>
+
+<!-- ===== 下班自查 ===== -->
+<div class="card">
+  <h2>✅ 每天下班前自查（3个问题）</h2>
+  <ul class="check-list">
+    <li><strong>今天所有会员的打卡我都回了吗？</strong>有没有漏的？漏一个，会员明天就不想打卡了。</li>
+    <li><strong>我的回复有没有"好的""收到""不错"就完了？</strong>有的话，现在补一句具体的。按框架补。</li>
+    <li><strong>今天的汇总发了吗？标红的都写进"需要关注"了吗？</strong>体重3天不动 / 排便2天无 / 睡眠&lt;6h → 必须标红上报。</li>
+  </ul>
+</div>
+
+<div class="footer">
+  📝 助理实战指南 v2 &nbsp;|&nbsp; 框架式 · 先问原因 · 搜索填表 · 标红上报 &nbsp;|&nbsp; 核心：减轻你的工作量
+</div>
+
+</div>
+</body>
+</html>

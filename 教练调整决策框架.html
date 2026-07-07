@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方法判断指标 · 教练参考</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Noto Sans SC', -apple-system, sans-serif; background:#f0f2f5; color:#2d3436; line-height:1.85; padding:20px 12px; }
+  .container { max-width:720px; margin:0 auto; }
+  h1 { font-size:20px; font-weight:900; text-align:center; margin-bottom:16px; }
+  .card { background:#fff; border-radius:14px; padding:18px 22px; margin-bottom:12px; box-shadow:0 2px 10px rgba(0,0,0,.04); }
+  .card h2 { font-size:15px; font-weight:700; margin-bottom:8px; }
+  table { width:100%; border-collapse:collapse; font-size:12px; margin:6px 0; }
+  th { background:#2d3436; color:#fff; padding:7px 8px; font-weight:500; font-size:10px; text-align:left; }
+  td { padding:6px 8px; border-bottom:1px solid #eee; vertical-align:top; }
+  tr:nth-child(even) td { background:#fafafa; }
+
+  .tag { display:inline-block; padding:1px 8px; border-radius:50px; font-size:10px; font-weight:700; }
+  .t1 { background:#e8f5e9; color:#2e7d32; } /* 碳水渐降 */
+  .t2 { background:#fff3e0; color:#e65100; } /* 碳循环 */
+  .t3 { background:#e3f2fd; color:#1565c0; } /* 5+2 */
+
+  .info-box { background:#f0f7ff; border-left:4px solid #0984e3; border-radius:8px; padding:10px 14px; margin:8px 0; font-size:12px; }
+  .rule-box { background:#fff5f5; border-left:4px solid #d63031; border-radius:8px; padding:10px 14px; margin:8px 0; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>方法判断指标</h1>
+
+<!-- 三元判断 -->
+<div class="card">
+  <h2>拿到周反馈后，看这三项决定方法</h2>
+  <table>
+    <tr><th style="width:25%">判断项</th><th style="width:25%">情况 A</th><th style="width:25%">情况 B</th><th style="width:25%">情况 C</th></tr>
+    <tr>
+      <td><strong>体重趋势</strong></td>
+      <td>每周降 1%-1.5%<br>✅ 正常</td>
+      <td>卡住 ≥2 周<br>⚠️ 缺口没了</td>
+      <td>涨了或剧烈波动<br>🔴 有问题</td>
+    </tr>
+    <tr>
+      <td><strong>四个信号</strong><br>（睡眠/排便/情绪/执行）</td>
+      <td>都 ≥6 分<br>✅ 正常</td>
+      <td>1-2 个偏低<br>⚠️ 有压力</td>
+      <td>多个 ≤4 分<br>🔴 代谢压力大</td>
+    </tr>
+    <tr>
+      <td><strong>当前方法用了多久</strong></td>
+      <td>≤2 周</td>
+      <td>3-4 周</td>
+      <td>≥5 周</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 方法选择 -->
+<div class="card">
+  <h2>方法选择速查</h2>
+  <table>
+    <tr><th>组合</th><th>选哪个</th><th>怎么调</th></tr>
+    <tr>
+      <td>体重A + 信号A</td>
+      <td><span class="tag t1">保持当前</span></td>
+      <td>不动。不管用什么方法，有效就不换</td>
+    </tr>
+    <tr>
+      <td>体重A + 信号A + 用了≥5周</td>
+      <td><span class="tag t1">保持当前</span></td>
+      <td>效果还在就不换。一个方法好用可以一直用</td>
+    </tr>
+    <tr>
+      <td>体重B + 信号A + 当前是碳水渐降</td>
+      <td><span class="tag t1">碳水渐降</span></td>
+      <td>继续降碳水 15-20g。不用换方法，只是要降量</td>
+    </tr>
+    <tr>
+      <td>体重B + 信号A + 当前是碳水渐降用了≥4周</td>
+      <td><span class="tag t2">碳循环</span> 或 <span class="tag t3">5+2</span></td>
+      <td>碳水渐降已降到底或不想再降→换方法。有训练基础→碳循环；生活规律→5+2</td>
+    </tr>
+    <tr>
+      <td>体重B + 信号A + 当前是碳循环用了≥4周</td>
+      <td><span class="tag t3">5+2</span></td>
+      <td>碳循环不敏感了→换 5+2</td>
+    </tr>
+    <tr>
+      <td>体重B + 信号A + 当前是5+2用了≥4周</td>
+      <td><span class="tag t1">碳水渐降</span></td>
+      <td>5+2 不敏感了→回到碳水渐降，从当前碳水重新开始</td>
+    </tr>
+    <tr>
+      <td>体重B + 信号B（不管什么方法）</td>
+      <td><span class="tag t1">碳水渐降</span></td>
+      <td>先降量，不换方法。信号偏低的先调量再看</td>
+    </tr>
+    <tr>
+      <td>体重C 或 信号C（不管什么方法）</td>
+      <td><span class="tag t1">紧急回调</span></td>
+      <td>碳水拉回 20-30g，回到碳水渐降模式。等信号恢复到A再考虑换方法</td>
+    </tr>
+    <tr>
+      <td>三个方法都轮过了，还是卡</td>
+      <td><span class="tag t1">碳水渐降</span></td>
+      <td>检查执行度。确认执行到位→只能再降碳水 15g</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 不适合5+2 -->
+<div class="card">
+  <h2>5+2 不适合的情况——直接排除</h2>
+  <table>
+    <tr><th>情况</th><th>原因</th></tr>
+    <tr><td>睡眠长期 ≤5 分</td><td>轻断食会进一步拉高皮质醇，睡眠更差</td></tr>
+    <tr><td>有进食障碍史（暴食/催吐/液断史）</td><td>轻断食触发限制-暴食循环</td></tr>
+    <tr><td>备孕/孕期/哺乳期</td><td>热量不能大幅波动</td></tr>
+    <tr><td>压力大/情绪不稳定</td><td>轻断食=额外的生理压力</td></tr>
+    <tr><td>生活完全不规律（吃饭时间乱、经常出差）</td><td>5+2 需要固定轻断食日</td></tr>
+  </table>
+</div>
+
+<!-- 不适合碳循环 -->
+<div class="card">
+  <h2>碳循环不适合的情况</h2>
+  <table>
+    <tr><th>情况</th><th>原因</th></tr>
+    <tr><td>完全没有训练</td><td>碳循环需要高碳日配合训练才有效</td></tr>
+    <tr><td>BMI ≥30 且刚开始减脂</td><td>先用碳水渐降，等进入通道后再考虑碳循环</td></tr>
+    <tr><td>吃饭不规律、不能自己做饭</td><td>碳循环需要精确控量</td></tr>
+  </table>
+</div>
+
+<!-- 调量 -->
+<div class="card">
+  <h2>三种方法的调量方式</h2>
+  <table>
+    <tr><th>方法</th><th>每次降多少</th><th>降哪里</th><th>底线</th></tr>
+    <tr><td><span class="tag t1">碳水渐降</span></td><td>碳水 15-20g</td><td>晚餐主食减 50-70g 熟饭</td><td>不低于 BMR</td></tr>
+    <tr><td><span class="tag t2">碳循环</span></td><td>先降低碳日 10g，再降中碳日 15g</td><td>低碳日和中碳日的主食</td><td>低碳日碳水 ≥50g</td></tr>
+    <tr><td><span class="tag t3">5+2</span></td><td>正常日晚餐减 15g 碳水</td><td>正常日晚餐主食</td><td>正常日不低于 BMR</td></tr>
+  </table>
+  <div class="rule-box">
+    <strong>降碳水 = 蛋白不动、脂肪不动。</strong>每次降完观察 1 周。体重还在降就不要继续降。<br>
+    <strong>运动配合：</strong>碳水渐降→训练不变；碳循环→高碳日训练、低碳日休息；5+2→轻断食日不训练。
+  </div>
+</div>
+
+<div class="info-box">
+  <strong>使用方式：</strong>会员填完周评估表→把数据发给我→我对照这个表判断用哪个方法+怎么调→你出下周计划。
+</div>
+
+</div>
+</body>
+</html>
