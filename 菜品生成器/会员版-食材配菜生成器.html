@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食材配菜生成器</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: {
+      brand:   '#2e9e5b',   // 主绿
+      brand2:  '#43b96f',
+      brandlt: '#eaf7ef',   // 浅绿背景
+      ink:     '#2d3a32',
+      sub:     '#6b7c70',
+    }, fontFamily: { sans: ['"PingFang SC"','"Microsoft YaHei"','sans-serif'] } } }
+  }
+</script>
+<style>
+  body{background:#f4f9f5;color:#2d3a32}
+  .fade-in{animation:fi .4s ease}
+  @keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .chip{transition:all .15s}
+  .chip.on{background:#2e9e5b;color:#fff;border-color:#2e9e5b}
+  .dots span{animation:bl 1.2s infinite}
+  .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bl{0%,80%,100%{opacity:.2}40%{opacity:1}}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#c7ddcd;border-radius:8px}
+</style>
+</head>
+<body class="font-sans min-h-screen">
+
+<!-- ===== 顶部 ===== -->
+<header class="bg-gradient-to-r from-brand to-brand2 text-white shadow">
+  <div class="max-w-3xl mx-auto px-5 py-5">
+    <h1 class="text-2xl font-bold flex items-center gap-2"><i class="fa fa-cutlery"></i> 食材配菜生成器</h1>
+    <p class="text-white/85 text-sm mt-1">选好家里有的食材 + 想用的做法，一键出几道可选的菜 🍚</p>
+  </div>
+</header>
+
+<main class="max-w-3xl mx-auto px-5 py-6 space-y-6">
+
+  <!-- ① 选食材 -->
+  <section class="bg-white rounded-2xl shadow-sm p-5">
+    <h2 class="font-bold text-lg mb-1"><span class="text-brand">①</span> 选食材</h2>
+    <p class="text-sub text-sm mb-4">点一下选中，再点取消。没有的可以在最下面手动加。</p>
+    <div id="ingredientGroups" class="space-y-4"></div>
+
+    <div class="mt-4">
+      <label class="text-sm text-sub">➕ 补充食材（库里没有的，用逗号或空格隔开）</label>
+      <div class="flex gap-2 mt-1">
+        <input id="customInput" type="text" placeholder="比如：秋葵、龙利鱼"
+               class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
+        <button id="addCustom" class="bg-brandlt text-brand font-medium px-4 rounded-lg hover:bg-green-100">加入</button>
+      </div>
+      <div id="customChips" class="flex flex-wrap gap-2 mt-2"></div>
+    </div>
+  </section>
+
+  <!-- ② 烹饪方式 -->
+  <section class="bg-white rounded-2xl shadow-sm p-5">
+    <h2 class="font-bold text-lg mb-1"><span class="text-brand">②</span> 选烹饪方式</h2>
+    <p class="text-sub text-sm mb-4">可多选，也可以选“不限”让 AI 自由发挥。</p>
+    <div id="methods" class="flex flex-wrap gap-2"></div>
+  </section>
+
+  <!-- ③ 生成 -->
+  <section class="bg-white rounded-2xl shadow-sm p-5">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <h2 class="font-bold text-lg"><span class="text-brand">③</span> 生成菜品</h2>
+      <div class="text-sm text-sub" id="pickSummary">还没选食材</div>
+    </div>
+    <button id="genBtn"
+      class="mt-4 w-full bg-gradient-to-r from-brand to-brand2 text-white font-bold py-3 rounded-xl shadow hover:opacity-95 disabled:opacity-50 flex items-center justify-center gap-2">
+      <i class="fa fa-magic"></i> 帮我配几道菜
+    </button>
+    <div id="genHint" class="text-center text-sub text-sm mt-3 hidden">
+      <span class="dots">正在配菜<span>.</span><span>.</span><span>.</span></span>
+    </div>
+    <div id="results" class="mt-5 grid gap-4"></div>
+    <button id="againBtn" class="hidden mt-4 w-full border-2 border-brand text-brand font-medium py-2.5 rounded-xl hover:bg-brandlt">
+      <i class="fa fa-refresh"></i> 再换一批
+    </button>
+  </section>
+
+</main>
+
+<footer class="max-w-3xl mx-auto px-5 pb-24 pt-2 text-center text-sub text-xs">
+  仅供参考，克重为大致估计，具体请按自身情况调整 · 有疑问点右下角小助手问问 👉
+</footer>
+
+<!-- ===== 悬浮 AI 助手 ===== -->
+<div id="aiBubble" title="不知道吃啥？问我"
+     class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-brand to-brand2 text-white text-2xl shadow-lg flex items-center justify-center cursor-pointer z-40 hover:scale-105 transition">
+  <i class="fa fa-comments"></i>
+</div>
+
+<div id="aiPanel" class="hidden fixed bottom-24 right-6 w-[92vw] max-w-sm h-[70vh] max-h-[520px] bg-white rounded-2xl shadow-2xl z-40 flex flex-col overflow-hidden">
+  <div id="aiHeader" class="bg-gradient-to-r from-brand to-brand2 text-white px-4 py-3 flex items-center justify-between cursor-move">
+    <span class="font-bold"><i class="fa fa-cutlery mr-1"></i> 吃啥小助手</span>
+    <i id="aiClose" class="fa fa-times cursor-pointer hover:opacity-70"></i>
+  </div>
+  <div id="aiMsgs" class="flex-1 overflow-y-auto p-3 space-y-3 bg-[#f6faf7]"></div>
+  <div class="p-3 border-t flex gap-2">
+    <input id="aiInput" type="text" placeholder="比如：晚上清淡点，不想动锅"
+           class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand">
+    <button id="aiSend" class="bg-brand text-white px-4 rounded-lg hover:bg-brand2"><i class="fa fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   配置：只填“中转代理地址”，绝不放 Key（Key 藏在代理里）
+   部署好代理后，把下面这行换成你的 workers.dev 地址即可。
+   ============================================================ */
+const PROXY_URL = 'https://你的代理地址.workers.dev';
+// 模型链（全部免费）：从上往下试，某个报错/返回空就自动换下一个
+const MODELS = [
+  'THUDM/GLM-4-9B-0414',
+  'deepseek-ai/DeepSeek-R1-0528-Qwen3-8B',
+];
+
+/* ---------- 数据 ---------- */
+const ING = {
+  '肉蛋类':   ['鸡蛋','鸡胸肉','鸡腿','猪瘦肉','五花肉','牛肉','虾仁','鱼'],
+  '蔬菜类':   ['西红柿','黄瓜','青椒','西兰花','生菜','菠菜','白菜','胡萝卜','土豆','洋葱','茄子','豆角'],
+  '主食类':   ['米饭','面条','馒头','燕麦','红薯','玉米'],
+  '豆制品':   ['豆腐','豆干','腐竹','鸡蛋豆腐'],
+  '菌菇海鲜': ['香菇','金针菇','平菇','木耳','海带','蛤蜊'],
+  '调味常备': ['葱','姜','蒜','小米辣','香菜'],
+};
+const METHODS = ['不限','清炒','蒸','水煮','炖','凉拌','煎','烤','焖','汆水'];
+
+const state = { picked: new Set(), custom: new Set(), methods: new Set(['不限']) };
+
+/* ---------- 渲染选择区 ---------- */
+const groupsEl = document.getElementById('ingredientGroups');
+Object.entries(ING).forEach(([cat, items]) => {
+  const box = document.createElement('div');
+  box.innerHTML = `<div class="text-sm font-semibold text-ink mb-2">${cat}</div>`;
+  const wrap = document.createElement('div');
+  wrap.className = 'flex flex-wrap gap-2';
+  items.forEach(name => {
+    const b = document.createElement('button');
+    b.className = 'chip border border-gray-200 rounded-full px-3 py-1.5 text-sm bg-gray-50';
+    b.textContent = name;
+    b.onclick = () => { b.classList.toggle('on'); toggle(state.picked, name, b.classList.contains('on')); };
+    wrap.appendChild(b);
+  });
+  box.appendChild(wrap);
+  groupsEl.appendChild(box);
+});
+
+const methodsEl = document.getElementById('methods');
+METHODS.forEach(m => {
+  const b = document.createElement('button');
+  b.className = 'chip border border-gray-200 rounded-full px-4 py-1.5 text-sm bg-gray-50' + (m==='不限'?' on':'');
+  b.textContent = m;
+  b.onclick = () => {
+    if (m === '不限') { state.methods.clear(); state.methods.add('不限');
+      [...methodsEl.children].forEach(c => c.classList.toggle('on', c.textContent==='不限'));
+    } else {
+      methodsEl.firstChild.classList.remove('on'); state.methods.delete('不限');
+      b.classList.toggle('on'); toggle(state.methods, m, b.classList.contains('on'));
+      if (state.methods.size === 0) { state.methods.add('不限'); methodsEl.firstChild.classList.add('on'); }
+    }
+    updateSummary();
+  };
+  methodsEl.appendChild(b);
+});
+
+function toggle(set, v, on){ on ? set.add(v) : set.delete(v); updateSummary(); }
+
+/* ---------- 补充食材 ---------- */
+const customChips = document.getElementById('customChips');
+document.getElementById('addCustom').onclick = addCustom;
+document.getElementById('customInput').addEventListener('keypress', e => { if(e.key==='Enter') addCustom(); });
+function addCustom(){
+  const inp = document.getElementById('customInput');
+  inp.value.split(/[,，\s]+/).map(s=>s.trim()).filter(Boolean).forEach(name=>{
+    if (state.custom.has(name)) return;
+    state.custom.add(name);
+    const c = document.createElement('span');
+    c.className = 'chip on rounded-full px-3 py-1 text-sm flex items-center gap-1';
+    c.innerHTML = `${name} <i class="fa fa-times-circle"></i>`;
+    c.onclick = () => { state.custom.delete(name); c.remove(); updateSummary(); };
+    customChips.appendChild(c);
+  });
+  inp.value=''; updateSummary();
+}
+
+function allIngredients(){ return [...state.picked, ...state.custom]; }
+function updateSummary(){
+  const ing = allIngredients();
+  const el = document.getElementById('pickSummary');
+  el.textContent = ing.length ? `已选 ${ing.length} 种食材 · ${[...state.methods].join('/')}` : '还没选食材';
+}
+
+/* ---------- 调用 AI（通过代理，不含 Key；模型链自动兜底）---------- */
+async function askAI(messages, maxTokens=1200){
+  let lastErr;
+  for (const model of MODELS){
+    try{
+      const r = await fetch(PROXY_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.7, enable_thinking: false })
+      });
+      if (!r.ok){ lastErr = new Error(model+' 返回 '+r.status); continue; }
+      const d = await r.json();
+      const content = (d.choices?.[0]?.message?.content || '').trim();
+      if (content) return content;
+      lastErr = new Error(model+' 返回空内容');
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('所有模型都不可用');
+}
+
+/* ---------- 生成菜品 ---------- */
+const GEN_SYS = `你是营养师的配菜助手。根据用户勾选的食材和烹饪方式，生成 3~5 道可选家常菜。
+只返回一个 JSON 数组（不要任何多余文字、不要markdown代码块），每个元素含字段：
+name(菜名), ingredients(字符串数组，每项形如"西红柿 150g"), steps(3~4步做法的字符串数组),
+kcal(整道菜大致热量，数字), protein(蛋白质克数，数字), tip(一句适合/忌口提示)。
+优先低油低糖的健康家常做法。尽量只用用户给的食材加常见调味，缺主料时可合理补一两样常见配料。`;
+
+const genBtn = document.getElementById('genBtn');
+const againBtn = document.getElementById('againBtn');
+genBtn.onclick = againBtn.onclick = generate;
+
+async function generate(){
+  const ing = allIngredients();
+  if (!ing.length){ alert('先选或加至少一种食材哦～'); return; }
+  setGenLoading(true);
+  const user = `我现在有这些食材：${ing.join('、')}。想用的烹饪方式：${[...state.methods].join('、')}。请配菜。`;
+  try{
+    const txt = await askAI([{role:'system',content:GEN_SYS},{role:'user',content:user}]);
+    renderDishes(parseDishes(txt), txt);
+  }catch(e){
+    document.getElementById('results').innerHTML =
+      `<div class="text-center text-red-500 text-sm py-4">出错了：${e.message}<br>请检查代理地址是否填对、网络是否正常。</div>`;
+  }finally{ setGenLoading(false); }
+}
+
+function setGenLoading(on){
+  genBtn.disabled = on;
+  document.getElementById('genHint').classList.toggle('hidden', !on);
+}
+
+function parseDishes(txt){
+  // 容错：抽出第一个 [ 到最后一个 ] 之间的 JSON
+  const s = txt.indexOf('['), e = txt.lastIndexOf(']');
+  if (s !== -1 && e !== -1){ try{ return JSON.parse(txt.slice(s, e+1)); }catch{} }
+  return null;
+}
+
+function renderDishes(list, raw){
+  const box = document.getElementById('results');
+  againBtn.classList.remove('hidden');
+  if (!Array.isArray(list) || !list.length){
+    box.innerHTML = `<div class="bg-brandlt rounded-xl p-4 text-sm whitespace-pre-wrap">${escapeHtml(raw)}</div>`;
+    return;
+  }
+  box.innerHTML = list.map(d => `
+    <div class="fade-in border border-green-100 rounded-2xl p-4 bg-gradient-to-br from-white to-brandlt">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="font-bold text-lg text-ink">${escapeHtml(d.name||'一道菜')}</h3>
+        <div class="text-xs text-brand font-semibold whitespace-nowrap">
+          ${d.kcal!=null?`🔥 ${escapeHtml(''+d.kcal)} kcal`:''} ${d.protein!=null?`· 蛋白 ${escapeHtml(''+d.protein)}g`:''}
+        </div>
+      </div>
+      ${Array.isArray(d.ingredients)?`<div class="flex flex-wrap gap-1.5 mt-2">
+        ${d.ingredients.map(i=>`<span class="text-xs bg-white border border-green-100 rounded-full px-2 py-0.5 text-sub">${escapeHtml(i)}</span>`).join('')}
+      </div>`:''}
+      ${Array.isArray(d.steps)?`<ol class="mt-3 space-y-1 text-sm text-ink list-decimal list-inside">
+        ${d.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}
+      </ol>`:''}
+      ${d.tip?`<div class="mt-3 text-xs bg-brand/10 text-brand rounded-lg px-3 py-2"><i class="fa fa-lightbulb-o mr-1"></i>${escapeHtml(d.tip)}</div>`:''}
+    </div>`).join('');
+}
+
+/* ---------- 悬浮聊天 ---------- */
+const CHAT_SYS = {role:'system', content:'你是亲切专业的营养师配餐助手，帮用户解决“不知道吃什么”。回答简洁实用，多给具体可操作的建议，可适当用emoji。'};
+let chatHistory = [CHAT_SYS];
+
+const bubble=document.getElementById('aiBubble'), panel=document.getElementById('aiPanel');
+const msgs=document.getElementById('aiMsgs'), input=document.getElementById('aiInput');
+bubble.onclick = () => { panel.classList.remove('hidden'); if(msgs.children.length===0) pushMsg('ai','嗨～不知道吃啥就问我，说说你的情况（清淡/减脂/家里有啥）🍜'); input.focus(); };
+document.getElementById('aiClose').onclick = () => panel.classList.add('hidden');
+document.getElementById('aiSend').onclick = sendChat;
+input.addEventListener('keypress', e => { if(e.key==='Enter') sendChat(); });
+
+async function sendChat(){
+  const t = input.value.trim(); if(!t) return;
+  input.value=''; pushMsg('me', t); chatHistory.push({role:'user',content:t});
+  const typing = pushMsg('ai','<span class="dots"><span>.</span><span>.</span><span>.</span></span>', true);
+  try{
+    const reply = await askAI(chatHistory, 800);
+    typing.remove(); pushMsg('ai', escapeHtml(reply)); chatHistory.push({role:'assistant',content:reply});
+  }catch(e){ typing.remove(); pushMsg('ai','抱歉，连接出问题了 😅（'+e.message+'）'); }
+}
+function pushMsg(who, html, raw){
+  const d = document.createElement('div');
+  d.className = who==='me' ? 'text-right' : 'text-left';
+  d.innerHTML = `<div class="inline-block max-w-[85%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
+    who==='me' ? 'bg-brand text-white rounded-br-sm' : 'bg-white border border-green-100 rounded-bl-sm'}">${html}</div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
+}
+
+/* 聊天窗拖拽 */
+(function(){
+  const h=document.getElementById('aiHeader'); let sx,sy,ox,oy,drag=false;
+  h.addEventListener('mousedown', e=>{ drag=true; sx=e.clientX; sy=e.clientY;
+    const r=panel.getBoundingClientRect(); ox=r.left; oy=r.top;
+    panel.style.right='auto'; panel.style.bottom='auto'; panel.style.left=ox+'px'; panel.style.top=oy+'px'; });
+  window.addEventListener('mousemove', e=>{ if(!drag) return;
+    panel.style.left=(ox+e.clientX-sx)+'px'; panel.style.top=(oy+e.clientY-sy)+'px'; });
+  window.addEventListener('mouseup', ()=> drag=false);
+})();
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+updateSummary();
+</script>
+</body>
+</html>
