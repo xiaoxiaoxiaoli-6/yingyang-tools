@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>碳循环 · 今天吃多少</title>
+<style>
+  :root{--g:#166534;--g2:#16a34a;--tint:#ecfdf5;--line:#d1fae5;--txt:#1f2937;--mut:#6b7280}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:#f4f7f5;color:var(--txt);
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+       display:flex;justify-content:center;padding:18px 14px 46px}
+  .wrap{width:100%;max-width:440px}
+  .head{background:linear-gradient(135deg,#166534,#15803d);color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+  .head h1{margin:0;font-size:20px;letter-spacing:.5px}
+  .head p{margin:6px 0 0;font-size:13px;opacity:.9}
+  .head .wm{position:absolute;right:-6px;bottom:-10px;font-size:52px;font-weight:800;opacity:.08;letter-spacing:2px;pointer-events:none}
+  .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 4px 16px rgba(16,58,43,.06)}
+  .label{font-size:13px;color:var(--mut);margin:0 0 10px;font-weight:600}
+  .seg{display:flex;gap:8px}
+  .seg button{flex:1;border:1px solid var(--line);background:#fff;color:var(--g);border-radius:12px;
+              padding:12px;font-size:15px;font-weight:600;cursor:pointer}
+  .seg button.on{background:var(--g);border-color:var(--g);color:#fff}
+  input[type=number]{width:100%;border:1px solid var(--line);border-radius:12px;padding:14px;
+                     font-size:20px;font-weight:700;text-align:center;color:var(--txt);background:#f9fafb}
+  input[type=number]:focus{outline:none;border-color:var(--g2);background:#fff}
+  .unit{font-size:12px;color:var(--mut);text-align:center;margin-top:8px;line-height:1.6}
+  .days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .days button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 4px;
+               cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .days button .d{font-size:15px;font-weight:700;color:var(--g)}
+  .days button .t{font-size:11px;color:var(--mut)}
+  .days button.on{background:var(--tint);border-color:var(--g2)}
+  .days button.on .t{color:var(--g)}
+  .cyclenote{font-size:12px;color:var(--mut);margin:10px 0 0;line-height:1.6}
+  .cyclenote b{color:#b45309}
+  .out{border:2px solid var(--line);border-radius:16px;padding:16px;background:#fff}
+  .badge{display:inline-block;background:var(--g);color:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+  .badge.low{background:#0f766e}.badge.zero{background:#334155}.badge.high{background:#b45309}
+  .kcal{float:right;font-size:12px;color:var(--mut);padding-top:6px}
+  .macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 4px}
+  .m{background:#f9fafb;border-radius:12px;padding:12px 8px;text-align:center}
+  .m .v{font-size:22px;font-weight:800;color:var(--g);line-height:1.1}
+  .m .v small{font-size:12px;font-weight:600;color:var(--mut);margin-left:2px}
+  .m .k{font-size:12px;color:var(--mut);margin-top:4px}
+  .sum{font-size:12px;color:var(--mut);text-align:center;margin:2px 0 0}
+  .tips{margin:14px 0 0;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;
+        font-size:13px;line-height:1.8;color:#78350f}
+  .tips b{color:#92400e}
+  .copy{width:100%;margin-top:12px;border:0;border-radius:12px;background:var(--g2);color:#fff;
+        padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+  .warn{display:none;margin-top:10px;font-size:12px;color:#b45309;background:#fffbeb;border-radius:10px;padding:10px;line-height:1.6}
+  .warn.show{display:block}
+  .sign{margin-top:14px;text-align:center;font-size:11px;color:#9ca3af;line-height:1.7}
+  .mark{display:inline-block;background:rgba(22,101,52,.9);color:#fff;font-size:11px;
+        padding:5px 12px;border-radius:999px;letter-spacing:.5px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>碳循环 · 今天吃多少</h1>
+    <p>4 天一个循环，选今天是第几天，直接出数</p>
+    <div class="wm">李想</div>
+  </div>
+
+  <div class="card">
+    <p class="label">性别</p>
+    <div class="seg">
+      <button data-sex="女" class="on">女</button>
+      <button data-sex="男">男</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">晨起空腹裸重</p>
+    <input id="kg" type="number" inputmode="decimal" step="0.1" placeholder="比如 61.3">
+    <div class="unit">上完厕所、空腹、只穿内衣称的那个数<br>只有这个体重波动 ≥2kg，才重新算低碳日碳水</div>
+  </div>
+
+  <div class="card">
+    <p class="label">今天是本轮第几天</p>
+    <div class="days" id="days"></div>
+    <p class="cyclenote">第 4 天结束回到第 1 天。<b>中断超过 2 天，本轮作废，从第 1 天重新开始。</b></p>
+  </div>
+
+  <div class="out" id="out">
+    <span class="badge" id="badge">第 1 天 · 低碳日</span>
+    <span class="kcal" id="kcal"></span>
+    <div class="macros">
+      <div class="m"><div class="v" id="c">—</div><div class="k">碳水 g</div></div>
+      <div class="m"><div class="v" id="p">—</div><div class="k">蛋白 g</div></div>
+      <div class="m"><div class="v" id="f">—</div><div class="k">脂肪 g</div></div>
+    </div>
+    <p class="sum">以上是<b>全天总和</b>，不强制三餐怎么分，可以拆到加餐里吃</p>
+    <div class="tips" id="tips"></div>
+    <div class="warn" id="warn"></div>
+    <button class="copy" id="copy">复制今日目标</button>
+  </div>
+
+  <p class="sign">李想 · 线上一对一营养指导 ｜ 计算器 v2.0 · 2026.10<br>仅限本人使用，请勿外传</p>
+  <div class="mark">李想 · 会员版</div>
+</div>
+
+<script>
+/* ============ 规则（改这里就能改算法） ============ */
+var RULE = {
+  男: { seq: ["低碳日", "低碳日", "0碳日", "高碳日"] },
+  女: { seq: ["低碳日", "低碳日", "低碳日", "高碳日"] }
+};
+var FLOOR = { 男: 30, 女: 25 };   // 低碳日碳水保底
+var MACRO = {
+  低碳日: {
+    男: { c: function (w) { return w * 0.8; }, p: 100, f: 40 },
+    女: { c: function (w) { return w * 0.5; }, p: 60, f: 50 }
+  },
+  "0碳日": {
+    男: { c: null, p: 120, f: 40 }
+  }
+};
+var TIPS = {
+  低碳日: {
+    女: "外食不用刻意控油，但避开油炸重油。<b>在家</b>：肉自带脂肪 + 炒菜油凑够 50g。<br>" +
+        "碳水按<b>总碳水</b>算，膳食纤维也算进去。<br>" +
+        "建议每天加 3-5g 盐，减少乏力、抽筋、头晕。",
+    男: "外食不用刻意控油，但避开油炸重油。<b>在家</b>：按卡用油就行。<br>" +
+        "碳水按<b>总碳水</b>算，膳食纤维也算进去。<br>" +
+        "建议每天加 3-5g 盐，减少乏力、抽筋、头晕。"
+  },
+  "0碳日": "只吃：瘦肉、鱼虾、鸡蛋、绿叶菜、黄瓜、番茄这类非淀粉蔬菜。<br>" +
+           "<b>今天不吃</b>：米、面、红薯、土豆、玉米、南瓜、莲藕、水果、牛奶、酸奶、含糖酱汁。" +
+           "绿叶菜的微量碳水不算。<br>蛋白尽量分到多餐，别一顿猛吃。建议每天加 3-5g 盐。",
+  "高碳日": "碳水吃到 <b>7-8 分饱</b>，不是吃到撑胀水肿；优先米饭、红薯、燕麦这类干净碳水。<br>" +
+           "<b>蛋白和脂肪不额外补</b>，靠配菜自带，别刻意加肉和坚果。<br>" +
+           "这是补碳日，不是欺骗餐：甜品、奶茶、蛋糕、油炸一律不碰。"
+};
+/* ================================================ */
+
+var sex = "女", kg = null, idx = 0;
+var DAY_NAMES = ["第1天", "第2天", "第3天", "第4天"];
+
+function typeOf(s, i) { return RULE[s].seq[i]; }
+
+function renderDays() {
+  var box = document.getElementById("days");
+  box.innerHTML = "";
+  DAY_NAMES.forEach(function (n, i) {
+    var t = typeOf(sex, i);
+    var b = document.createElement("button");
+    b.className = (i === idx ? "on" : "");
+    b.innerHTML = '<span class="d">' + n + '</span><span class="t">' + t + '</span>';
+    b.onclick = function () { idx = i; render(); };
+    box.appendChild(b);
+  });
+}
+
+function render() {
+  document.querySelectorAll("[data-sex]").forEach(function (b) {
+    b.className = (b.dataset.sex === sex ? "on" : "");
+  });
+  renderDays();
+
+  var t = typeOf(sex, idx);
+  var badge = document.getElementById("badge");
+  badge.textContent = "第 " + (idx + 1) + " 天 · " + t;
+  badge.className = "badge " + (t === "低碳日" ? "low" : t === "0碳日" ? "zero" : "high");
+
+  var cEl = document.getElementById("c"), pEl = document.getElementById("p"), fEl = document.getElementById("f");
+  var kcalEl = document.getElementById("kcal");
+  var warn = document.getElementById("warn");
+  warn.className = "warn";
+
+  if (!kg) {
+    cEl.innerHTML = "—"; pEl.innerHTML = "—"; fEl.innerHTML = "—";
+    kcalEl.textContent = "";
+  } else if (t === "高碳日") {
+    cEl.innerHTML = "吃饱"; pEl.innerHTML = "不补"; fEl.innerHTML = "不补";
+    kcalEl.textContent = "";
+  } else if (t === "0碳日") {
+    var m = MACRO["0碳日"]["男"];
+    cEl.innerHTML = "0"; pEl.innerHTML = m.p; fEl.innerHTML = m.f;
+    kcalEl.textContent = "≈ " + Math.round(m.p * 4 + m.f * 9) + " kcal";
+  } else {
+    var mc = MACRO["低碳日"][sex];
+    var raw = mc.c(kg);
+    var floor = FLOOR[sex];
+    var c = Math.round(raw);                 // 四舍五入取整
+    var locked = false;
+    if (c < floor) { c = floor; locked = true; }
+    cEl.innerHTML = c; pEl.innerHTML = mc.p; fEl.innerHTML = mc.f;
+    kcalEl.textContent = "≈ " + Math.round(c * 4 + mc.p * 4 + mc.f * 9) + " kcal";
+    if (locked) {
+      warn.className = "warn show";
+      warn.innerHTML = "按体重算是 " + (Math.round(raw * 10) / 10) + "g，低于保底线，已锁到 " + floor +
+                       "g（" + (sex === "男" ? "男" : "女") + "性低碳日最低 " + floor + "g）。";
+    }
+  }
+
+  var tip = TIPS[t];
+  document.getElementById("tips").innerHTML = (typeof tip === "string") ? tip : (tip[sex] || tip["女"]);
+}
+
+document.querySelectorAll("[data-sex]").forEach(function (b) {
+  b.onclick = function () { sex = b.dataset.sex; render(); };
+});
+
+document.getElementById("kg").addEventListener("input", function (e) {
+  var v = parseFloat(e.target.value);
+  kg = isNaN(v) ? null : v;
+  localStorage.setItem("cxh_kg", e.target.value);
+  render();
+});
+
+document.getElementById("copy").onclick = function () {
+  var t = typeOf(sex, idx);
+  var c = document.getElementById("c").textContent;
+  var p = document.getElementById("p").textContent;
+  var f = document.getElementById("f").textContent;
+  function u(v) { return isNaN(parseFloat(v)) ? "" : "g"; }
+  var txt = "碳循环 第" + (idx + 1) + "天（" + t + "）：碳水 " + c + u(c) +
+            " ｜ 蛋白 " + p + u(p) + " ｜ 脂肪 " + f + u(f);
+  if (navigator.clipboard) navigator.clipboard.writeText(txt);
+  this.textContent = "已复制";
+  var self = this;
+  setTimeout(function () { self.textContent = "复制今日目标"; }, 1600);
+};
+
+// 记住上次体重，会员打卡不用每次输
+var saved = localStorage.getItem("cxh_kg");
+if (saved) { document.getElementById("kg").value = saved; kg = parseFloat(saved) || null; }
+render();
+</script>
+</body>
+</html>
